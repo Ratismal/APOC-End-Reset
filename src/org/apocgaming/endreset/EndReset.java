@@ -27,7 +27,7 @@ public class EndReset extends JavaPlugin {
 			p.sendMessage(message);
 		}
 	}
-
+	
 	public void onEnable() {
 
 		expierenceDistributerManager = new ExpierenceDistributerManager();
