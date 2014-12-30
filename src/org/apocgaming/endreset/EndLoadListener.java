@@ -63,6 +63,12 @@ public class EndLoadListener implements Listener {
         }
         double expForPerson = 0;
         for(Map.Entry e : plugin.getExpierenceDistributerManager().getContents().entrySet()){
+            //someone do this for me
+            /*
+            Just get the amount of damage, get the percent out of the total
+            then you want to get that % out of the dragons health
+            then once you have that %, award the player with the xP levels.
+             */
             expForPerson = (double)e.getValue()/total;
             Player player = (Player) e.getKey();
             player.sendMessage("\247c[\247bEndReset\247c]\247r You have been rewarded " + expForPerson + " exp points for doing " + ((double)e.getValue() + "").replaceAll("0.","")+"% of the damage.");
