@@ -1,0 +1,10 @@
+name: Apoc-End Reset
+main: org.apocgaming.endreset.EndReset
+version: 0.3DEV
+
+commands:
+   getPlayers:
+      description: Get the players and their damage values to the ender dragon.
+      usage: /<command>
+      permission: endreset.admin
+      permission-message: You don't have <permission>
