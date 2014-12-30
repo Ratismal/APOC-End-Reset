@@ -35,7 +35,7 @@ public class EndLoadListener implements Listener {
         * */
         boolean shouldEnable = false;
          if(event.getWorld().getEnvironment()==World.Environment.THE_END){
-            /* Loop through the entieies */
+            /* Loop through the entities */
             for(Entity e : event.getWorld().getEntities()) {
                 /* Check if a player */
                 if(e instanceof EntityPlayer) {
