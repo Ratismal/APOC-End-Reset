@@ -13,6 +13,6 @@ public class ExpierenceDistributerManager extends HashMapManager<Player, Double>
     public void setup(){
         this.contents = new LinkedHashMap<>();
     }
-
+//aaagit it dumb
 
 }
