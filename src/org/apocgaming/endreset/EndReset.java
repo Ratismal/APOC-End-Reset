@@ -17,6 +17,8 @@ public class EndReset extends JavaPlugin {
     public ExpierenceDistributerManager expierenceDistributerManager;
     static Logger log = Logger.getLogger("Minecraft");
     private EndLoadListener endLoadListener;
+
+
     public static void sendMessageToAllPlayers(String message){
         for(Player p : Bukkit.getOnlinePlayers()){
             p.sendMessage(message);
@@ -40,7 +42,7 @@ public class EndReset extends JavaPlugin {
         if(commandLabel.equalsIgnoreCase("getPlayers")) {
             if (sender instanceof Player) {
                 if(args.length==0){
-                    sender.sendMessage("--Beginning to list player data--");
+                    sender.sendMessage("--Beginning to list player data-- [" + getExpierenceDistributerManager().getContents().size() +"] total");
                 for (Map.Entry e : this.getExpierenceDistributerManager().getContents().entrySet()) {
                     sender.sendMessage("Player [" + e.getKey() + "] has a dmg value of " + e.getValue());
                 }
