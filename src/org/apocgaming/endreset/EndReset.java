@@ -3,14 +3,10 @@ package org.apocgaming.endreset;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.UUID;
 import java.util.logging.Logger;
 
 /**
@@ -24,10 +20,10 @@ public class EndReset extends JavaPlugin {
 
 	public static void sendMessageToAllPlayers(String message) {
 		for (Player p : Bukkit.getOnlinePlayers()) {
-			p.sendMessage(message);
+			p.sendMessage("\247c[\247bEndReset\247c]\247r " + message);
 		}
 	}
-	
+
 	public void onEnable() {
 
 		expierenceDistributerManager = new ExpierenceDistributerManager();
@@ -46,10 +42,9 @@ public class EndReset extends JavaPlugin {
 		if (commandLabel.equalsIgnoreCase("getPlayers")) {
 			if (sender instanceof Player) {
 				if (args.length == 0) {
-					sender.sendMessage("--Beginning to list player data--");
-					for (Iterator<Map.Entry<Player, Double>> iterator = this.getExpierenceDistributerManager().getContents()
-							.entrySet().iterator(); iterator.hasNext();) {
-						Entry<Player, Double> e = iterator.next();
+					sender.sendMessage("--Beginning to list player data-- ["
+							+ getExpierenceDistributerManager().getContents().size() + "] total");
+					for (Map.Entry e : this.getExpierenceDistributerManager().getContents().entrySet()) {
 						sender.sendMessage("Player [" + e.getKey() + "] has a dmg value of " + e.getValue());
 					}
 					return true;
@@ -59,6 +54,33 @@ public class EndReset extends JavaPlugin {
 				}
 			}
 		}
+		if (commandLabel.equalsIgnoreCase("getexp")) {
+			for (Player p : Bukkit.getOnlinePlayers()) {
+				p.sendMessage(p.getName() + "'s EXP is: " + p.getExp() + "  |  " + p.getExpToLevel() + "  |  "
+						+ p.getLevel() + "  |  " + p.getTotalExperience());
+				return true;
+			}
+		}
+
+		if (commandLabel.equalsIgnoreCase("giveexp")) {
+			for (Player p : Bukkit.getOnlinePlayers()) {
+				if (args.length == 1) {
+					int exp = Integer.parseInt(args[0]);
+					p.giveExp(exp);
+					p.sendMessage("Gave " + p.getName() + " " + exp + " exp");
+					return true;
+				} else {
+					sender.sendMessage("U failed");
+				}
+			}
+		}
+
 		return false;
+	}
+
+	public static void sendMessageToAllPlayersDebug(String message) {
+		for (Player p : Bukkit.getOnlinePlayers()) {
+			p.sendMessage("\247c[\247aEndReset [DEBUG]\247c]\247r " + message);
+		}
 	}
 }
