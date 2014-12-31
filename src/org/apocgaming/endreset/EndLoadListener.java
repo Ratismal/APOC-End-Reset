@@ -27,10 +27,11 @@ public class EndLoadListener implements Listener {
 	public EndLoadListener(EndReset instance) {
 		this.plugin = instance;
 	}
-	
+
 	@EventHandler
 	public void onPortal(PlayerPortalEvent event) {
-		if (event.getCause() == PlayerTeleportEvent.TeleportCause.END_PORTAL && event.getTo().getWorld().getEnvironment().equals(Environment.THE_END)) {
+		if (event.getCause() == PlayerTeleportEvent.TeleportCause.END_PORTAL
+				&& event.getTo().getWorld().getEnvironment().equals(Environment.THE_END)) {
 			addToList(event.getPlayer());
 		}
 	}
@@ -58,19 +59,33 @@ public class EndLoadListener implements Listener {
 		Player didMostDamage = null;
 		for (Map.Entry e : plugin.getExpierenceDistributerManager().getContents().entrySet()) {
 			Player player = (Player) e.getKey();
-			double percentDamage = 100 / totalDamageDone * (double)e.getValue();
+			double percentDamage = 100 / totalDamageDone * (double) e.getValue();
 			int expForPerson = (int) (percentDamage / 100 * totalExpForEveryBody);
-			if(highestDamage < percentDamage) {
+			if (highestDamage < percentDamage) {
 				highestDamage = percentDamage;
 				didMostDamage = player;
 			}
 			player.sendMessage("\247c[\247bEndReset\247c]\247r You have been rewarded " + expForPerson
-					+ " exp points for doing " + (int)percentDamage + "% of the damage.");
+					+ " exp points for doing " + (int) percentDamage + "% of the damage.");
 			player.giveExp(expForPerson);
 		}
-		if(didMostDamage != null && highestDamage != 0) {
-			didMostDamage.getInventory().addItem(new ItemStack(Material.DRAGON_EGG, 1));
-			//Need to add something for if the inventory is full
+		if (didMostDamage != null && highestDamage != 0) {
+			boolean hasSpace = false;
+			//untested
+			for (ItemStack item : didMostDamage.getInventory().getContents()) {
+				if (item == null) {
+					hasSpace = true;
+					didMostDamage.getInventory().addItem(new ItemStack(Material.DRAGON_EGG, 1));
+					didMostDamage.sendMessage("\247c[\247bEndReset\247c]\247r You did the most damage to the ender dragon. "
+							+ "There for you have been rewared the dragon egg!");
+					break;
+				}
+			}
+			if (!hasSpace) {
+				didMostDamage.getWorld().dropItem(didMostDamage.getLocation(), new ItemStack(Material.DRAGON_EGG, 1));
+				didMostDamage.sendMessage("\247c[\247bEndReset\247c]\247r You did the most damage to the ender dragon. "
+						+ "Your invetory is full, the dragon egg dropped on the ground.");
+			}
 		}
 
 	}
@@ -89,7 +104,8 @@ public class EndLoadListener implements Listener {
 			}
 			double oldDamage = plugin.getExpierenceDistributerManager().getContents().get(shooter.getPlayer());
 			plugin.getExpierenceDistributerManager().getContents().put(shooter.getPlayer(), oldDamage + event.getDamage());
-			shooter.sendMessage("\247c[\247aEndReset [DEBUG]\247c]\247r You have damaged the ender dragon: " + (oldDamage + event.getDamage()));
+			shooter.sendMessage("\247c[\247aEndReset [DEBUG]\247c]\247r You have damaged the ender dragon: "
+					+ (oldDamage + event.getDamage()));
 		}
 	}
 

@@ -24,8 +24,8 @@ public class EndReset extends JavaPlugin {
 		}
 	}
 
-	public void onEnable() {
 
+	public void onEnable() {
 		expierenceDistributerManager = new ExpierenceDistributerManager();
 		expierenceDistributerManager.setup();
 		endLoadListener = new EndLoadListener(this);
