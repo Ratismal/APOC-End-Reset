@@ -18,6 +18,7 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.world.WorldLoadEvent;
@@ -41,40 +42,77 @@ public class EndLoadListener implements Listener {
     @EventHandler
     public void onPortal(PlayerPortalEvent event){
         if(event.getCause()== PlayerTeleportEvent.TeleportCause.END_PORTAL){
+            if(!EndReset.writtenCrystals){
+                plugin.saveChrystalLocations(event.getPlayer());
+            }
             addToList(event.getPlayer());
         }
     }
 
-    private void addToList(Player p){
-        plugin.getExpierenceDistributerManager().getContents().put(p,0.0);
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event){
+        if(event.getPlayer().getWorld().getEnvironment()== World.Environment.THE_END){
+                if(!EndReset.writtenCrystals){
+                    plugin.saveChrystalLocations(event.getPlayer());
+                }
+                addToList(event.getPlayer());
+            }
+    }
+
+    private void addToList(Player p) {
+        plugin.getExpierenceDistributerManager().getContents().put(p, 0.0);
+        EndReset.sendMessageToAllPlayersDebug(p.getName() + " has joined dragon fight!");
+    }
+
+    private void handleExpierence() {
+        double totalDamageDone = 0;
+        int totalExpForEveryBody = 22075;
+        for (Map.Entry e : plugin.getExpierenceDistributerManager().getContents().entrySet()) {
+            totalDamageDone += (double) e.getValue();
+        }
+        double highestDamage = 0;
+        Player didMostDamage = null;
+        for (Map.Entry e : plugin.getExpierenceDistributerManager().getContents().entrySet()) {
+            Player player = (Player) e.getKey();
+            double percentDamage = 100 / totalDamageDone * (double) e.getValue();
+            int expForPerson = (int) (percentDamage / 100 * totalExpForEveryBody);
+            if (highestDamage < percentDamage) {
+                highestDamage = percentDamage;
+                didMostDamage = player;
+            }
+            player.sendMessage("\247c[\247bEndReset\247c]\247r You have been rewarded " + expForPerson
+                    + " exp points for doing " + (int) percentDamage + "% of the damage.");
+            player.giveExp(expForPerson);
+        }
+        if (didMostDamage != null && highestDamage != 0) {
+            boolean hasSpace = false;
+            //untested
+            for (ItemStack item : didMostDamage.getInventory().getContents()) {
+                if (item == null) {
+                    hasSpace = true;
+                    didMostDamage.getInventory().addItem(new ItemStack(Material.DRAGON_EGG, 1));
+                    didMostDamage.sendMessage("\247c[\247bEndReset\247c]\247r You did the most damage to the ender dragon. "
+                            + "There for you have been rewared the dragon egg!");
+                    break;
+                }
+            }
+            if (!hasSpace) {
+                didMostDamage.getWorld().dropItem(didMostDamage.getLocation(), new ItemStack(Material.DRAGON_EGG, 1));
+                didMostDamage.sendMessage("\247c[\247bEndReset\247c]\247r You did the most damage to the ender dragon. "
+                        + "Your invetory is full, the dragon egg dropped on the ground.");
+            }
+        }
+
     }
 
     @EventHandler
     public void onEntityDeath(EntityDeathEvent event){
-      //  if(event.getEntity().getType()==EntityType.ENDER_DRAGON){
+        if(event.getEntity().getType()==EntityType.ENDER_DRAGON){
             handleExpierence();
-      //  }
+        }
     }
 
-    private void handleExpierence(){
-        double total = 0;
-        for(Map.Entry e : plugin.getExpierenceDistributerManager().getContents().entrySet()){
-            total+=(double)e.getValue();
-        }
-        double expForPerson = 0;
-        for(Map.Entry e : plugin.getExpierenceDistributerManager().getContents().entrySet()){
-            //someone do this for me
-            /*
-            Just get the amount of damage, get the percent out of the total
-            then you want to get that % out of the dragons health
-            then once you have that %, award the player with the xP levels.
-             */
-            expForPerson = (double)e.getValue()/total;
-            Player player = (Player) e.getKey();
-            player.sendMessage("\247c[\247bEndReset\247c]\247r You have been rewarded " + expForPerson + " exp points for doing " + ((double)e.getValue() + "").replaceAll("0.","")+"% of the damage.");
-            player.setExp((float) (player.getExp() + expForPerson));
-        }
-    }
+
 
     @EventHandler
     public void onEntityDamaged(EntityDamageByEntityEvent event){
