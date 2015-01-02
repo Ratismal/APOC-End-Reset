@@ -24,9 +24,8 @@ public class EndReset extends JavaPlugin {
 	public ExpierenceDistributerManager expierenceDistributerManager;
 	static Logger log = Logger.getLogger("Minecraft");
 	private EndLoadListener endLoadListener;
-	public final File PLUGIN_FOLDER = new File("plugins");
     public final File OUR_FOLDER = new File("plugins\\End Reset\\");
-	public final File DATA_FILE = new File(OUR_FOLDER +"\\CrystalData.txt");
+	public final File CRYSTAL_DATA = new File(OUR_FOLDER +"\\CrystalData.txt");
 	public static boolean writtenCrystals = false;
 
 
@@ -67,15 +66,15 @@ public void saveCrystalLocations(World w){
         int helper = 0;
         String seperator =  System.getProperty("line.separator");
         try{
-            log.info("Trying to make a new file. [" + DATA_FILE.getPath() + "]");
-            if(!DATA_FILE.exists()){
-                DATA_FILE.createNewFile();
+            log.info("Trying to make a new file. [" + CRYSTAL_DATA.getPath() + "]");
+            if(!CRYSTAL_DATA.exists()){
+            	CRYSTAL_DATA.createNewFile();
                 log.info("Created new File.");
             }
             if(!OUR_FOLDER.exists()){
                 OUR_FOLDER.mkdirs();
             }
-            BufferedWriter out = new BufferedWriter(new FileWriter(DATA_FILE.getAbsoluteFile()));
+            BufferedWriter out = new BufferedWriter(new FileWriter(CRYSTAL_DATA.getAbsoluteFile()));
             out.write("######################" + seperator);
             out.write("# This is a configuration file that marks where the Ender Crystals are so we can respawn them when the end 'resets'." + seperator);
             out.write("######################" + seperator);
