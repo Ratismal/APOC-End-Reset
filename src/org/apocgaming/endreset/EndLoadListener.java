@@ -124,7 +124,7 @@ public class EndLoadListener implements Listener {
 	public void onUpdate(PlayerMoveEvent event) {
 		if(isEndLoaded && !EndReset.writtenCrystals){
 			if(time.isDelayComplete(time.convertToMS(3))){
-				plugin.saveChrystalLocations(event.getPlayer().getWorld());
+				plugin.saveCrystalLocations(event.getPlayer().getWorld());
 				time.setLastMS(time.getCurrentMS());
 			}
 		}
