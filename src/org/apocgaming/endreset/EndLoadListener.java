@@ -111,7 +111,6 @@ public class EndLoadListener implements Listener {
 		}
 	}
 
-	/* time to write more */
 
 	private void handleTeleport() {
 		for (Map.Entry e : plugin.getExpierenceDistributerManager().getContents().entrySet()) {
