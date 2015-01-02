@@ -28,7 +28,9 @@ public class EndLoadListener implements Listener {
 	public EndReset plugin;
 	private long timeOnDead = 0L;
 	private long currentTime = 0L;
-	
+	private boolean updateTeleportTimer = false;
+	private boolean hasSpace = false;
+
 	public EndLoadListener(EndReset instance) {
 		this.plugin = instance;
 	}
@@ -59,6 +61,7 @@ public class EndLoadListener implements Listener {
 		EndReset.sendMessageToAllPlayersDebug(p.getName() + " has joined dragon fight!");
 	}
 
+	
 	private void handleExpierence() {
 		double totalDamageDone = 0;
 		int totalExpForEveryBody = 22075;
@@ -80,8 +83,7 @@ public class EndLoadListener implements Listener {
 			player.giveExp(expForPerson);
 		}
 		if (didMostDamage != null && highestDamage != 0) {
-			boolean hasSpace = false;
-			// untested
+			hasSpace = false;
 			for (ItemStack item : didMostDamage.getInventory().getContents()) {
 				if (item == null) {
 					hasSpace = true;
@@ -100,7 +102,6 @@ public class EndLoadListener implements Listener {
 
 	}
 
-	private boolean updateTeleportTimer = false;
 	
 	@EventHandler
 	public void onEntityDeath(EntityDeathEvent event) {
@@ -125,7 +126,7 @@ public class EndLoadListener implements Listener {
 	public void onUpdate(PlayerMoveEvent event) {
 		if(updateTeleportTimer) {
 			currentTime = System.currentTimeMillis();
-			if(currentTime >= (timeOnDead + 5000)) {
+			if(currentTime >= (timeOnDead + (hasSpace ? 5000 : 10000))) {
 				handleTeleport();
 				updateTeleportTimer = false;
 			}
