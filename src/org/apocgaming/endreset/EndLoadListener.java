@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.World.Environment;
 import org.bukkit.craftbukkit.v1_6_R3.entity.CraftArrow;
 import org.bukkit.craftbukkit.v1_6_R3.entity.CraftPlayer;
 import org.bukkit.entity.EntityType;
@@ -13,8 +14,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.inventory.ItemStack;
 
 /**
@@ -23,15 +26,17 @@ import org.bukkit.inventory.ItemStack;
 public class EndLoadListener implements Listener {
 
 	public EndReset plugin;
-	private boolean isInEnd = false;
-
+	private long timeOnDead = 0L;
+	private long currentTime = 0L;
+	
 	public EndLoadListener(EndReset instance) {
 		this.plugin = instance;
 	}
 
 	@EventHandler
 	public void onPortal(PlayerPortalEvent event) {
-		if (event.getCause() == PlayerTeleportEvent.TeleportCause.END_PORTAL) {
+		if (event.getCause() == PlayerTeleportEvent.TeleportCause.END_PORTAL
+				&& event.getTo().getWorld().getEnvironment().equals(Environment.THE_END)) {
 			if (!EndReset.writtenCrystals) {
 				plugin.saveChrystalLocations(event.getPlayer());
 			}
@@ -94,16 +99,43 @@ public class EndLoadListener implements Listener {
 		}
 
 	}
+
+	private boolean updateTeleportTimer = false;
 	
 	@EventHandler
 	public void onEntityDeath(EntityDeathEvent event) {
 		if (event.getEntity().getType() == EntityType.ENDER_DRAGON) {
 			handleExpierence();
+			timeOnDead = System.currentTimeMillis();
+			updateTeleportTimer = true;
 		}
 	}
 
 	/* time to write more */
 
+	private void handleTeleport() {
+		for (Map.Entry e : plugin.getExpierenceDistributerManager().getContents().entrySet()) {
+			Player player = (Player) e.getKey();
+			if (player.getWorld().getEnvironment().equals(Environment.THE_END)) {
+				player.teleport(player.getBedSpawnLocation(), TeleportCause.PLUGIN);
+			}
+		}
+	}
+
+	@EventHandler
+	public void onUpdate(PlayerMoveEvent event) {
+		if(updateTeleportTimer) {
+			currentTime = System.currentTimeMillis();
+			if(currentTime >= (timeOnDead + 5000)) {
+				handleTeleport();
+				updateTeleportTimer = false;
+			}
+			
+		}
+	}
+	
+	
+	
 	@EventHandler
 	public void onEntityDamaged(EntityDamageByEntityEvent event) {
 		if (event.getEntity().getType() == EntityType.ENDER_DRAGON) {
