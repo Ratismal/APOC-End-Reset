@@ -26,10 +26,13 @@ import org.bukkit.inventory.ItemStack;
 public class EndLoadListener implements Listener {
 
 	public EndReset plugin;
+	private long timeOnDead = 0L;
+	private long currentTime = 0L;
 	private boolean updateTeleportTimer = false;
 	private boolean hasSpace = false;
 	private boolean isEndLoaded = false;
 	private TimeHelper time = new TimeHelper();
+	private TimeHelper time2 = new TimeHelper();
 
 	public EndLoadListener(EndReset instance) {
 		this.plugin = instance;
@@ -39,20 +42,16 @@ public class EndLoadListener implements Listener {
 	public void onPortal(PlayerPortalEvent event) {
 		if (event.getCause() == PlayerTeleportEvent.TeleportCause.END_PORTAL
 				&& event.getTo().getWorld().getEnvironment().equals(Environment.THE_END)) {
+			isEndLoaded = true;
 			addToList(event.getPlayer());
-			if (!isEndLoaded) {
-				isEndLoaded = true;
-			}
 		}
 	}
+
 
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		if (event.getPlayer().getWorld().getEnvironment() == World.Environment.THE_END) {
 			addToList(event.getPlayer());
-			if(!isEndLoaded) {
-				isEndLoaded = true;
-			}
 		}
 	}
 
@@ -61,6 +60,7 @@ public class EndLoadListener implements Listener {
 		EndReset.sendMessageToAllPlayersDebug(p.getName() + " has joined dragon fight!");
 	}
 
+	
 	private void handleExpierence() {
 		double totalDamageDone = 0;
 		int totalExpForEveryBody = 22075;
@@ -101,13 +101,16 @@ public class EndLoadListener implements Listener {
 
 	}
 
+	
 	@EventHandler
 	public void onEntityDeath(EntityDeathEvent event) {
 		if (event.getEntity().getType() == EntityType.ENDER_DRAGON) {
 			handleExpierence();
+			timeOnDead = System.currentTimeMillis();
 			updateTeleportTimer = true;
 		}
 	}
+
 
 	private void handleTeleport() {
 		for (Map.Entry e : plugin.getExpierenceDistributerManager().getContents().entrySet()) {
@@ -120,21 +123,23 @@ public class EndLoadListener implements Listener {
 
 	@EventHandler
 	public void onUpdate(PlayerMoveEvent event) {
-		if (isEndLoaded && !EndReset.writtenCrystals) {
-			if (time.isDelayComplete(time.convertToMS(3))) {
+		if(isEndLoaded && !EndReset.writtenCrystals){
+			if(time.isDelayComplete(time.convertToMS(3))){
 				plugin.saveCrystalLocations(event.getPlayer().getWorld());
 				time.setLastMS(time.getCurrentMS());
 			}
 		}
-		if (updateTeleportTimer) {
-			if (time.isDelayComplete(time.convertToMS((hasSpace ? 5 : 10)))) {
+		if(updateTeleportTimer) {
+			if(time2.isDelayComplete(time2.convertToMS((hasSpace ? 5 : 10)))){
 				handleTeleport();
 				updateTeleportTimer = false;
-				time.setLastMS(time.getCurrentMS());
+				time2.setLastMS(time2.getCurrentMS());
 			}
 		}
 	}
-
+	
+	
+	
 	@EventHandler
 	public void onEntityDamaged(EntityDamageByEntityEvent event) {
 		if (event.getEntity().getType() == EntityType.ENDER_DRAGON) {
