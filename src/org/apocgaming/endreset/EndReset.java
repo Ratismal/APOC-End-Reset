@@ -25,7 +25,7 @@ public class EndReset extends JavaPlugin {
 	static Logger log = Logger.getLogger("Minecraft");
 	private EndLoadListener endLoadListener;
 	public final File PLUGIN_FOLDER = new File("plugins");
-	public final File DATA_FILE = new File("APOC-EndReset-CrystalData.txt");
+	public final File DATA_FILE = new File("\\APOC End Reset\\CrystalData.txt");
 	public static boolean writtenCrystals = false;
 
 

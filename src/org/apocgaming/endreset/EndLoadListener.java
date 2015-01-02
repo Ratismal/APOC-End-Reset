@@ -30,6 +30,7 @@ public class EndLoadListener implements Listener {
 	private boolean hasSpace = false;
 	private boolean isEndLoaded = false;
 	private TimeHelper time = new TimeHelper();
+	private TimeHelper time2 = new TimeHelper();
 
 	public EndLoadListener(EndReset instance) {
 		this.plugin = instance;
@@ -126,11 +127,11 @@ public class EndLoadListener implements Listener {
 				time.setLastMS(time.getCurrentMS());
 			}
 		}
-		if (updateTeleportTimer) {
-			if (time.isDelayComplete(time.convertToMS((hasSpace ? 5 : 10)))) {
+		if(updateTeleportTimer) {
+			if(time2.isDelayComplete(time2.convertToMS((hasSpace ? 5 : 10)))){
 				handleTeleport();
 				updateTeleportTimer = false;
-				time.setLastMS(time.getCurrentMS());
+				time2.setLastMS(time2.getCurrentMS());
 			}
 		}
 	}
