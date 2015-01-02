@@ -30,6 +30,8 @@ public class EndLoadListener implements Listener {
 	private long currentTime = 0L;
 	private boolean updateTeleportTimer = false;
 	private boolean hasSpace = false;
+	private boolean isEndLoaded = false;
+	private TimeHelper time = new TimeHelper();
 
 	public EndLoadListener(EndReset instance) {
 		this.plugin = instance;
@@ -39,19 +41,15 @@ public class EndLoadListener implements Listener {
 	public void onPortal(PlayerPortalEvent event) {
 		if (event.getCause() == PlayerTeleportEvent.TeleportCause.END_PORTAL
 				&& event.getTo().getWorld().getEnvironment().equals(Environment.THE_END)) {
-			if (!EndReset.writtenCrystals) {
-				plugin.saveChrystalLocations(event.getPlayer());
-			}
+			isEndLoaded = true;
 			addToList(event.getPlayer());
 		}
 	}
 
+
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		if (event.getPlayer().getWorld().getEnvironment() == World.Environment.THE_END) {
-			if (!EndReset.writtenCrystals) {
-				plugin.saveChrystalLocations(event.getPlayer());
-			}
 			addToList(event.getPlayer());
 		}
 	}
@@ -124,6 +122,12 @@ public class EndLoadListener implements Listener {
 
 	@EventHandler
 	public void onUpdate(PlayerMoveEvent event) {
+		if(isEndLoaded && !EndReset.writtenCrystals){
+			if(time.isDelayComplete(time.convertToMS(3))){
+				plugin.saveChrystalLocations(event.getPlayer().getWorld());
+				time.setLastMS(time.getCurrentMS());
+			}
+		}
 		if(updateTeleportTimer) {
 			currentTime = System.currentTimeMillis();
 			if(currentTime >= (timeOnDead + (hasSpace ? 5000 : 10000))) {

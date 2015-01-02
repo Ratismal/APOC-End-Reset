@@ -24,7 +24,7 @@ public class EndReset extends JavaPlugin {
     public ExpierenceDistributerManager expierenceDistributerManager;
     static Logger log = Logger.getLogger("Minecraft");
     private EndLoadListener endLoadListener;
-    public final File DATA_FILE = new File("APOC-EndReset-CrystalData.txt");
+    public final File DATA_FILE = new File("EndReset-CrystalData.txt");
     public static boolean writtenCrystals = false;
 
     public static void sendMessageToAllPlayers(String message) {
@@ -43,7 +43,7 @@ public class EndReset extends JavaPlugin {
     }
 
 
-    public void saveChrystalLocations(Player basePlayer){
+    public void saveChrystalLocations(World w){
         int helper = 0;
         String seperator =  System.getProperty("line.separator");
         try{
@@ -53,16 +53,15 @@ public class EndReset extends JavaPlugin {
                 log.info("Created new File.");
             }
             BufferedWriter out = new BufferedWriter(new FileWriter(DATA_FILE.getAbsoluteFile()));
-            out.write("######################");
-            out.write("# This is a configuration file that marks where the Ender Crystals are so we can respawn them when the end 'resets'.");
-            out.write("######################");
-                if(basePlayer.getWorld().getEnvironment()== World.Environment.THE_END){
-                    for(Entity e : basePlayer.getWorld().getEntities()){
+            out.write("######################" + seperator);
+            out.write("# This is a configuration file that marks where the Ender Crystals are so we can respawn them when the end 'resets'." + seperator);
+            out.write("######################" + seperator);
+                    for(Entity e : w.getEntities()){
                         if(e.getType()==EntityType.ENDER_CRYSTAL){
                             out.write("Crystal No " + helper + ": " + e.getLocation().getX() + ", " + e.getLocation().getY() + ", " + e.getLocation().getZ() + seperator);
+                            helper++;
                         }
                     }
-                }
             writtenCrystals = true;
             out.close();
         }catch (IOException e){
