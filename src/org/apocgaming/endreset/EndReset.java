@@ -56,15 +56,13 @@ public class EndReset extends JavaPlugin {
             out.write("######################");
             out.write("# This is a configuration file that marks where the Ender Crystals are so we can respawn them when the end 'resets'.");
             out.write("######################");
-            for(World w : getServer().getWorlds()){
-                if(w.getEnvironment()== World.Environment.THE_END){
-                    for(Entity e : w.getEntities()){
+                if(basePlayer.getWorld().getEnvironment()== World.Environment.THE_END){
+                    for(Entity e : basePlayer.getWorld().getEntities()){
                         if(e.getType()==EntityType.ENDER_CRYSTAL){
                             out.write("Crystal No " + helper + ": " + e.getLocation().getX() + ", " + e.getLocation().getY() + ", " + e.getLocation().getZ() + seperator);
                         }
                     }
                 }
-            }
             writtenCrystals = true;
             out.close();
         }catch (IOException e){
