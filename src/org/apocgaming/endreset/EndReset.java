@@ -60,6 +60,7 @@ public class EndReset extends JavaPlugin {
                         if(e.getType()==EntityType.ENDER_CRYSTAL){
                             out.write("Crystal No " + helper + ": " + e.getLocation().getX() + ", " + e.getLocation().getY() + ", " + e.getLocation().getZ() + seperator);
                             helper++;
+
                         }
                     }
             writtenCrystals = true;

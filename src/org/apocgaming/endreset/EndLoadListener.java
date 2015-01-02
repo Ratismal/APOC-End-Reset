@@ -129,12 +129,11 @@ public class EndLoadListener implements Listener {
 			}
 		}
 		if(updateTeleportTimer) {
-			currentTime = System.currentTimeMillis();
-			if(currentTime >= (timeOnDead + (hasSpace ? 5000 : 10000))) {
+			if(time.isDelayComplete(time.convertToMS((hasSpace ? 5000 : 10000)))){
 				handleTeleport();
 				updateTeleportTimer = false;
+				time.setLastMS(time.getCurrentMS());
 			}
-			
 		}
 	}
 	
