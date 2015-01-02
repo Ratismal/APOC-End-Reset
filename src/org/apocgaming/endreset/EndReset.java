@@ -62,7 +62,7 @@ public class EndReset extends JavaPlugin {
 	}
 
 
-public void saveChrystalLocations(World w){
+public void saveCrystalLocations(World w){
         int helper = 0;
         String seperator =  System.getProperty("line.separator");
         try{
