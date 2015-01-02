@@ -25,7 +25,8 @@ public class EndReset extends JavaPlugin {
 	static Logger log = Logger.getLogger("Minecraft");
 	private EndLoadListener endLoadListener;
 	public final File PLUGIN_FOLDER = new File("plugins");
-	public final File DATA_FILE = new File("\\APOC End Reset\\CrystalData.txt");
+    public final File OUR_FOLDER = new File("plugins\\End Reset\\");
+	public final File DATA_FILE = new File(OUR_FOLDER +"\\CrystalData.txt");
 	public static boolean writtenCrystals = false;
 
 
@@ -70,6 +71,9 @@ public void saveCrystalLocations(World w){
             if(!DATA_FILE.exists()){
                 DATA_FILE.createNewFile();
                 log.info("Created new File.");
+            }
+            if(!OUR_FOLDER.exists()){
+                OUR_FOLDER.mkdirs();
             }
             BufferedWriter out = new BufferedWriter(new FileWriter(DATA_FILE.getAbsoluteFile()));
             out.write("######################" + seperator);
