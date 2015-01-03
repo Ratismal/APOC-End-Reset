@@ -67,35 +67,6 @@ public class EndReset extends JavaPlugin {
 		log.info("APOC End-Reset Enabled.");
 	}
 
-	public void saveCrystalLocations(World w) {
-		int helper = 0;
-		try {
-			log.info("Trying to make a new file. [" + CRYSTAL_DATA.getPath() + "]");
-			if (!CRYSTAL_DATA.exists()) {
-				CRYSTAL_DATA.createNewFile();
-				log.info("Created new file.");
-			}
-			BufferedWriter out = new BufferedWriter(new FileWriter(CRYSTAL_DATA.getAbsoluteFile()));
-			out.write("######################" + seperator);
-			out.write("# This is a configuration file that marks where the Ender Crystals are so we can respawn them when the end 'resets'."
-					+ seperator);
-			out.write("######################" + seperator);
-			for (Entity e : w.getEntities()) {
-				if (e.getType() == EntityType.ENDER_CRYSTAL) {
-					out.write("Crystal No " + helper + ": " + e.getLocation().getX() + ", " + e.getLocation().getY() + ", " + e.getLocation().getZ()
-							+ seperator);
-					helper++;
-
-				}
-			}
-			writtenCrystals = true;
-			out.flush();
-			out.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
 	private void loadConfig() {
 		totalExp = configmanager.getInt("total-exp");
 		rewardEgg = configmanager.getBoolean("reward-egg");

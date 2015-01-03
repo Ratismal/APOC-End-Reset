@@ -3,8 +3,12 @@ package org.apocgaming.endreset;
 import java.util.Map;
 import java.util.Random;
 
+import net.minecraft.server.v1_6_R3.Block;
+import net.minecraft.server.v1_6_R3.EntityEnderDragon;
+
 import org.bukkit.Chunk;
 import org.bukkit.Material;
+import org.bukkit.PortalType;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
 import org.bukkit.craftbukkit.v1_6_R3.entity.CraftArrow;
@@ -14,14 +18,15 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityCreatePortalEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 
 /**
  * Created by Haze on 12/29/2014.
@@ -39,12 +44,12 @@ public class EndLoadListener implements Listener {
 	@EventHandler
 	public void onPortal(PlayerPortalEvent event) {
 		if (event.getCause() == PlayerTeleportEvent.TeleportCause.END_PORTAL && event.getTo().getWorld().getEnvironment().equals(Environment.THE_END)) {
-			for (Entity e : event.getTo().getWorld().getEntities()) {
-				if (e.getType() == EntityType.ENDER_DRAGON) {
+//			for (Entity e : event.getTo().getWorld().getEntities()) {
+//				if (e.getType() == EntityType.ENDER_DRAGON) {
 					addToList(event.getPlayer());
-					break;
-				}
-			}
+//					break;
+//				}
+//			}
 			if (!isEndLoaded) {
 				isEndLoaded = true;
 			}
@@ -54,12 +59,12 @@ public class EndLoadListener implements Listener {
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		if (event.getPlayer().getWorld().getEnvironment() == Environment.THE_END) {
-			for (Entity e : event.getPlayer().getWorld().getEntities()) {
-				if (e.getType() == EntityType.ENDER_DRAGON) {
+//			for (Entity e : event.getPlayer().getWorld().getEntities()) {
+//				if (e.getType() == EntityType.ENDER_DRAGON) {
 					addToList(event.getPlayer());
-					break;
-				}
-			}
+//					break;
+//				}
+//			}
 			if (!isEndLoaded) {
 				isEndLoaded = true;
 			}
@@ -108,7 +113,7 @@ public class EndLoadListener implements Listener {
 						+ "Your invetory is full, the dragon egg dropped on the ground.");
 			}
 		}
-
+		plugin.getExpierenceDistributerManager().getContents().clear();
 	}
 
 	@EventHandler
@@ -116,42 +121,58 @@ public class EndLoadListener implements Listener {
 		if (event.getEntity().getType() == EntityType.ENDER_DRAGON) {
 			handleExpierence();
 			handleTeleport();
-			handleWorldRegen(event.getEntity().getWorld());
+			handleWorldRegen(event);
 		}
 	}
+	@EventHandler
+	public void onPortalCreate(EntityCreatePortalEvent event) {
+		if(event.getEntityType() == EntityType.ENDER_DRAGON && event.getPortalType() == PortalType.ENDER) {
+			event.setCancelled(true);
+		}
+	}
+	
+	private void handleWorldRegen(EntityDeathEvent event) {
+		final World world = event.getEntity().getWorld();
+		new BukkitRunnable() {
+			private int timer;
+			@Override
+			public void run() {
+				timer++;
+				for (Entity e : world.getEntities()) {
+					if (e.getType() == EntityType.EXPERIENCE_ORB) {
+						e.remove();
+					}
+				}
+				EndReset.log.info(Integer.toString(timer));
+				if(timer > 150) {
+					EndReset.log.info("Cancelled!");
+					cancel();
+				}
+			}
+		}.runTaskTimer(plugin, 100, 1);
 
-	private void handleWorldRegen(final World world) {
 		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 			@Override
 			public void run() {
-				//tested and does not work.
-				for(int i = 0; i < world.getLoadedChunks().length; i++) {
+				for (int i = 0; i < world.getLoadedChunks().length; i++) {
 					Chunk c = world.getLoadedChunks()[i];
 					world.regenerateChunk(c.getX(), c.getZ());
 				}
 			}
-		}, 200 /*plugin.resetDelay * 1200*/);
+		}, 560 /* plugin.tpDelay * 1200 - 20 */);
 	}
 
 	private void handleTeleport() {
 		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 			@Override
 			public void run() {
-				for (Map.Entry e : plugin.getExpierenceDistributerManager().getContents().entrySet()) {
-					Player player = (Player) e.getKey();
+				for (Player player : plugin.getServer().getOnlinePlayers()) {
 					if (player.getWorld().getEnvironment().equals(Environment.THE_END)) {
 						player.teleport(player.getBedSpawnLocation(), TeleportCause.PLUGIN);
 					}
 				}
 			}
-		}, 120 /* plugin.tpDelay * 1200 */);
-	}
-
-	@EventHandler
-	public void onUpdate(PlayerMoveEvent event) {
-		// if (isEndLoaded && !EndReset.writtenCrystals) {
-		// plugin.saveCrystalLocations(event.getPlayer().getWorld());
-		// }
+		}, 600 /* plugin.tpDelay * 1200 */);
 	}
 
 	@EventHandler
