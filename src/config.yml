@@ -13,21 +13,16 @@
 # So as long as the level.dat file is intact for the world the seed will remain unchanged.
 # This makes it easy to setup warps to the end as the platform for the end will never change.
 
-# end-reward:
 # This is the TOTAL experience that will be distributed between all players that killed the dragon. (22075 = 100 levels)
 total-exp: 22075
 # Do you want the player who killed the dragon to get the dragon egg?
 reward-egg: true
-
-# end-teleport:
 # Where should we teleport the players after we close the end?
 # Choose the name of the world and the coordinates X,Y,Z to where they will spawn at.
 end-tp-world: Spawn
-end-tp-coord: 0,25,0
+end-tp-coord: [0,25,0]
 # The time the players have left in the end after killing the dragon before they get teleported to the given coordinates above. (In minutes)
 end-tp-out-delay: 10
-
-# end-reset:
 # How long until the world is reset in minutes? (After the dragon is killed)
 end-reset-time: 30
 # Should we lock down the world until the end has reset after the players got teleported out? This prevents players from entering the end again.

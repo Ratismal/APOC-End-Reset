@@ -1,7 +1,9 @@
 package org.apocgaming.endreset;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Map;
@@ -14,6 +16,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
@@ -21,13 +25,15 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public class EndReset extends JavaPlugin {
 
-	public ExpierenceDistributerManager expierenceDistributerManager;
+	private final ExpierenceDistributerManager expierenceDistributerManager = new ExpierenceDistributerManager();
+	private final EndLoadListener endLoadListener = new EndLoadListener(this);
 	static Logger log = Logger.getLogger("Minecraft");
-	private EndLoadListener endLoadListener;
-    public final File OUR_FOLDER = new File("plugins\\End Reset\\");
-	public final File CRYSTAL_DATA = new File(OUR_FOLDER +"\\CrystalData.txt");
+	public ConfigManager configmanager = null;
+	public final File OUR_FOLDER = new File("plugins\\End Reset\\");
+	public final File CRYSTAL_DATA = new File(OUR_FOLDER + "\\CrystalData.txt");
+	public final File CONFIG_DATA = new File(OUR_FOLDER + "\\config.txt");
+	String seperator = System.getProperty("line.separator");
 	public static boolean writtenCrystals = false;
-
 
 	public int totalExp = 22075;
 	public boolean rewardEgg = true;
@@ -54,51 +60,59 @@ public class EndReset extends JavaPlugin {
 	}
 
 	public void onEnable() {
-		expierenceDistributerManager = new ExpierenceDistributerManager();
 		expierenceDistributerManager.setup();
-		endLoadListener = new EndLoadListener(this);
 		getServer().getPluginManager().registerEvents(endLoadListener, this);
+		saveDefaultConfig();
+		configmanager = new ConfigManager(getConfig());
+		loadConfig();
 		log.info("APOC End-Reset Enabled.");
 	}
 
+	public void saveCrystalLocations(World w) {
+		int helper = 0;
+		try {
+			log.info("Trying to make a new file. [" + CRYSTAL_DATA.getPath() + "]");
+			if (!CRYSTAL_DATA.exists()) {
+				CRYSTAL_DATA.createNewFile();
+				log.info("Created new file.");
+			}
+			BufferedWriter out = new BufferedWriter(new FileWriter(CRYSTAL_DATA.getAbsoluteFile()));
+			out.write("######################" + seperator);
+			out.write("# This is a configuration file that marks where the Ender Crystals are so we can respawn them when the end 'resets'."
+					+ seperator);
+			out.write("######################" + seperator);
+			for (Entity e : w.getEntities()) {
+				if (e.getType() == EntityType.ENDER_CRYSTAL) {
+					out.write("Crystal No " + helper + ": " + e.getLocation().getX() + ", " + e.getLocation().getY() + ", " + e.getLocation().getZ()
+							+ seperator);
+					helper++;
 
-public void saveCrystalLocations(World w){
-        int helper = 0;
-        String seperator =  System.getProperty("line.separator");
-        try{
-            log.info("Trying to make a new file. [" + CRYSTAL_DATA.getPath() + "]");
-            if(!CRYSTAL_DATA.exists()){
-            	CRYSTAL_DATA.createNewFile();
-                log.info("Created new File.");
-            }
-            if(!OUR_FOLDER.exists()){
-                OUR_FOLDER.mkdirs();
-            }
-            BufferedWriter out = new BufferedWriter(new FileWriter(CRYSTAL_DATA.getAbsoluteFile()));
-            out.write("######################" + seperator);
-            out.write("# This is a configuration file that marks where the Ender Crystals are so we can respawn them when the end 'resets'." + seperator);
-            out.write("######################" + seperator);
-                    for(Entity e : w.getEntities()){
-                        if(e.getType()==EntityType.ENDER_CRYSTAL){
-                            out.write("Crystal No " + helper + ": " + e.getLocation().getX() + ", " + e.getLocation().getY() + ", " + e.getLocation().getZ() + seperator);
-                            helper++;
+				}
+			}
+			writtenCrystals = true;
+			out.flush();
+			out.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
-                        }
-                    }
-            writtenCrystals = true;
-            out.close();
-        }catch (IOException e){
-            e.printStackTrace();
-        }
-    }
+	private void loadConfig() {
+		totalExp = configmanager.getInt("total-exp");
+		rewardEgg = configmanager.getBoolean("reward-egg");
+		worldName = configmanager.getString("end-tp-world");
+		endTPcoords = configmanager.getDoubleArray("end-tp-coord");
+		tpDelay = configmanager.getInt("end-tp-out-delay");
+		resetDelay = configmanager.getInt("end-reset-time");
+		endLockdown = configmanager.getBoolean("end-lockdown");
+	}
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String commandLabel, String[] args) {
 		if (commandLabel.equalsIgnoreCase("getPlayers")) {
 			if (sender instanceof Player) {
 				if (args.length == 0) {
-					sender.sendMessage("--Beginning to list player data-- ["
-							+ getExpierenceDistributerManager().getContents().size() + "] total");
+					sender.sendMessage("--Beginning to list player data-- [" + getExpierenceDistributerManager().getContents().size() + "] total");
 					for (Map.Entry e : this.getExpierenceDistributerManager().getContents().entrySet()) {
 						sender.sendMessage("Player [" + e.getKey() + "] has a dmg value of " + e.getValue());
 					}
@@ -111,8 +125,8 @@ public void saveCrystalLocations(World w){
 		}
 		if (commandLabel.equalsIgnoreCase("getexp")) {
 			for (Player p : Bukkit.getOnlinePlayers()) {
-				p.sendMessage(p.getName() + "'s EXP is: " + p.getExp() + "  |  " + p.getExpToLevel() + "  |  "
-						+ p.getLevel() + "  |  " + p.getTotalExperience());
+				p.sendMessage(p.getName() + "'s EXP is: " + p.getExp() + "  |  " + p.getExpToLevel() + "  |  " + p.getLevel() + "  |  "
+						+ p.getTotalExperience());
 				return true;
 			}
 		}
