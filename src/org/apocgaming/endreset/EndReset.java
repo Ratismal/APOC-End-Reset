@@ -31,7 +31,6 @@ public class EndReset extends JavaPlugin {
 	public ConfigManager configmanager = null;
 	public final File OUR_FOLDER = new File("plugins\\End Reset\\");
 	public final File CRYSTAL_DATA = new File(OUR_FOLDER + "\\CrystalData.txt");
-	public final File CONFIG_DATA = new File(OUR_FOLDER + "\\config.txt");
 	String seperator = System.getProperty("line.separator");
 	public static boolean writtenCrystals = false;
 

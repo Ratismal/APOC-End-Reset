@@ -1,12 +1,15 @@
 package org.apocgaming.endreset;
 
 import java.util.Map;
+import java.util.Random;
 
+import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
 import org.bukkit.craftbukkit.v1_6_R3.entity.CraftArrow;
 import org.bukkit.craftbukkit.v1_6_R3.entity.CraftPlayer;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -26,11 +29,8 @@ import org.bukkit.inventory.ItemStack;
 public class EndLoadListener implements Listener {
 
 	public EndReset plugin;
-	private boolean updateTeleportTimer = false;
 	private boolean hasSpace = false;
 	private boolean isEndLoaded = false;
-	private TimeHelper time = new TimeHelper();
-	private TimeHelper time2 = new TimeHelper();
 
 	public EndLoadListener(EndReset instance) {
 		this.plugin = instance;
@@ -38,9 +38,13 @@ public class EndLoadListener implements Listener {
 
 	@EventHandler
 	public void onPortal(PlayerPortalEvent event) {
-		if (event.getCause() == PlayerTeleportEvent.TeleportCause.END_PORTAL
-				&& event.getTo().getWorld().getEnvironment().equals(Environment.THE_END)) {
-			addToList(event.getPlayer());
+		if (event.getCause() == PlayerTeleportEvent.TeleportCause.END_PORTAL && event.getTo().getWorld().getEnvironment().equals(Environment.THE_END)) {
+			for (Entity e : event.getTo().getWorld().getEntities()) {
+				if (e.getType() == EntityType.ENDER_DRAGON) {
+					addToList(event.getPlayer());
+					break;
+				}
+			}
 			if (!isEndLoaded) {
 				isEndLoaded = true;
 			}
@@ -49,9 +53,14 @@ public class EndLoadListener implements Listener {
 
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
-		if (event.getPlayer().getWorld().getEnvironment() == World.Environment.THE_END) {
-			addToList(event.getPlayer());
-			if(!isEndLoaded) {
+		if (event.getPlayer().getWorld().getEnvironment() == Environment.THE_END) {
+			for (Entity e : event.getPlayer().getWorld().getEntities()) {
+				if (e.getType() == EntityType.ENDER_DRAGON) {
+					addToList(event.getPlayer());
+					break;
+				}
+			}
+			if (!isEndLoaded) {
 				isEndLoaded = true;
 			}
 		}
@@ -64,7 +73,7 @@ public class EndLoadListener implements Listener {
 
 	private void handleExpierence() {
 		double totalDamageDone = 0;
-		int totalExpForEveryBody = 22075;
+		int totalExpForEveryBody = plugin.totalExp;
 		for (Map.Entry e : plugin.getExpierenceDistributerManager().getContents().entrySet()) {
 			totalDamageDone += (double) e.getValue();
 		}
@@ -78,11 +87,11 @@ public class EndLoadListener implements Listener {
 				highestDamage = percentDamage;
 				didMostDamage = player;
 			}
-			player.sendMessage("\247c[\247bEndReset\247c]\247r You have been rewarded " + expForPerson
-					+ " exp points for doing " + (int) percentDamage + "% of the damage.");
+			player.sendMessage("\247c[\247bEndReset\247c]\247r You have been rewarded " + expForPerson + " exp points for doing "
+					+ (int) percentDamage + "% of the damage.");
 			player.giveExp(expForPerson);
 		}
-		if (didMostDamage != null && highestDamage != 0) {
+		if (didMostDamage != null && highestDamage != 0 && plugin.rewardEgg) {
 			hasSpace = false;
 			for (ItemStack item : didMostDamage.getInventory().getContents()) {
 				if (item == null) {
@@ -106,34 +115,43 @@ public class EndLoadListener implements Listener {
 	public void onEntityDeath(EntityDeathEvent event) {
 		if (event.getEntity().getType() == EntityType.ENDER_DRAGON) {
 			handleExpierence();
-			updateTeleportTimer = true;
+			handleTeleport();
+			handleWorldRegen(event.getEntity().getWorld());
 		}
 	}
 
-	private void handleTeleport() {
-		for (Map.Entry e : plugin.getExpierenceDistributerManager().getContents().entrySet()) {
-			Player player = (Player) e.getKey();
-			if (player.getWorld().getEnvironment().equals(Environment.THE_END)) {
-				player.teleport(player.getBedSpawnLocation(), TeleportCause.PLUGIN);
+	private void handleWorldRegen(final World world) {
+		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+			@Override
+			public void run() {
+				//tested and does not work.
+				for(int i = 0; i < world.getLoadedChunks().length; i++) {
+					Chunk c = world.getLoadedChunks()[i];
+					world.regenerateChunk(c.getX(), c.getZ());
+				}
 			}
-		}
+		}, 200 /*plugin.resetDelay * 1200*/);
+	}
+
+	private void handleTeleport() {
+		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+			@Override
+			public void run() {
+				for (Map.Entry e : plugin.getExpierenceDistributerManager().getContents().entrySet()) {
+					Player player = (Player) e.getKey();
+					if (player.getWorld().getEnvironment().equals(Environment.THE_END)) {
+						player.teleport(player.getBedSpawnLocation(), TeleportCause.PLUGIN);
+					}
+				}
+			}
+		}, 120 /* plugin.tpDelay * 1200 */);
 	}
 
 	@EventHandler
 	public void onUpdate(PlayerMoveEvent event) {
-		if (isEndLoaded && !EndReset.writtenCrystals) {
-			if (time.isDelayComplete(time.convertToMS(3))) {
-				plugin.saveCrystalLocations(event.getPlayer().getWorld());
-				time.setLastMS(time.getCurrentMS());
-			}
-		}
-		if(updateTeleportTimer) {
-			if(time2.isDelayComplete(time2.convertToMS((hasSpace ? 5 : 10)))){
-				handleTeleport();
-				updateTeleportTimer = false;
-				time2.setLastMS(time2.getCurrentMS());
-			}
-		}
+		// if (isEndLoaded && !EndReset.writtenCrystals) {
+		// plugin.saveCrystalLocations(event.getPlayer().getWorld());
+		// }
 	}
 
 	@EventHandler
