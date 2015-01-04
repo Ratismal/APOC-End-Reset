@@ -205,12 +205,11 @@ public class EndLoadListener implements Listener {
 							EndReset.sendMessageToPlayer(player, "End time is over :(");
 						} else {
 							EndReset.sendMessageToPlayer(player, "The end went on lock down! It will be open after "
-									+ (plugin.resetDelay - plugin.tpDelay) + " minutes.");
+									+ (plugin.resetDelay - plugin.tpDelay) + ((plugin.resetDelay - plugin.tpDelay) == 1 ? " minute.": " minutes."));
 						}
 					}
 				}
-				plugin.getExpierenceDistributerManager().setup();
-				if (plugin.endLockdown) {
+				if (plugin.endLockdown && delay != 0) {
 					isLocked = true;
 				}
 			}
@@ -256,6 +255,7 @@ public class EndLoadListener implements Listener {
 						}
 					}
 				}
+				isDragonKilled = false;
 				isLocked = false;
 				EndReset.sendMessageToAllPlayers("The end has been reset!");
 			}

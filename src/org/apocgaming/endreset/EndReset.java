@@ -74,6 +74,7 @@ public class EndReset extends JavaPlugin {
 				sendMessageToSender(sender, "/apocer clear" + ChatColor.BLUE + " | Will teleport all the players out of the end.");
 				sendMessageToSender(sender, "/apocer reset" + ChatColor.BLUE + " | Will reset the end.");
 				sendMessageToSender(sender, "/apocer version" + ChatColor.BLUE + " | Shows the plugin version.");
+				sendMessageToSender(sender, "/apocer reload" + ChatColor.BLUE + " | reloads the plugin.");
 				sendMessageToSender(sender, "Programmed by Capsar & Freakyfalse of the Apocalyptic Gaming Network");
 				sendMessageToSender(sender, "http://apocgaming.org");
 				sendMessageToSender(sender, "https://github.com/Zilacon/APOC-End-Reset");
@@ -94,6 +95,10 @@ public class EndReset extends JavaPlugin {
 					sendMessageToSender(sender, "Programmed by Capsar & Freakyfalse of the Apocalyptic Gaming Network");
 					sendMessageToSender(sender, "http://apocgaming.org");
 					sendMessageToSender(sender, "https://github.com/Zilacon/APOC-End-Reset");
+				} else if (args[0].equalsIgnoreCase("reload")) {
+					this.getServer().getPluginManager().getPlugin(this.getName()).getPluginLoader().disablePlugin(this);
+					this.getServer().getPluginManager().getPlugin(this.getName()).getPluginLoader().enablePlugin(this);
+					sendMessageToSender(sender, "Plugin has been reloaded.");
 				}
 			}
 			return true;
