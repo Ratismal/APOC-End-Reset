@@ -11,6 +11,8 @@ import org.bukkit.Material;
 import org.bukkit.PortalType;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
+import org.bukkit.WorldCreator;
+import org.bukkit.WorldType;
 import org.bukkit.craftbukkit.v1_6_R3.entity.CraftArrow;
 import org.bukkit.craftbukkit.v1_6_R3.entity.CraftPlayer;
 import org.bukkit.entity.Entity;
@@ -25,6 +27,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
+import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -35,7 +38,7 @@ public class EndLoadListener implements Listener {
 
 	public EndReset plugin;
 	private boolean hasSpace = false;
-	private boolean isEndLoaded = false;
+	private boolean isDragonKilled = false;
 
 	public EndLoadListener(EndReset instance) {
 		this.plugin = instance;
@@ -44,30 +47,28 @@ public class EndLoadListener implements Listener {
 	@EventHandler
 	public void onPortal(PlayerPortalEvent event) {
 		if (event.getCause() == PlayerTeleportEvent.TeleportCause.END_PORTAL && event.getTo().getWorld().getEnvironment().equals(Environment.THE_END)) {
-//			for (Entity e : event.getTo().getWorld().getEntities()) {
-//				if (e.getType() == EntityType.ENDER_DRAGON) {
-					addToList(event.getPlayer());
-//					break;
-//				}
-//			}
-			if (!isEndLoaded) {
-				isEndLoaded = true;
+			// for (Entity e : event.getTo().getWorld().getEntities()) {
+			// if (e.getType() == EntityType.ENDER_DRAGON) {
+			if (!isDragonKilled) {
+				addToList(event.getPlayer());
 			}
+			// break;
+			// }
+			// }
 		}
 	}
 
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		if (event.getPlayer().getWorld().getEnvironment() == Environment.THE_END) {
-//			for (Entity e : event.getPlayer().getWorld().getEntities()) {
-//				if (e.getType() == EntityType.ENDER_DRAGON) {
-					addToList(event.getPlayer());
-//					break;
-//				}
-//			}
-			if (!isEndLoaded) {
-				isEndLoaded = true;
+			// for (Entity e : event.getPlayer().getWorld().getEntities()) {
+			// if (e.getType() == EntityType.ENDER_DRAGON) {
+			if (!isDragonKilled) {
+				addToList(event.getPlayer());
 			}
+			// break;
+			// }
+			// }
 		}
 	}
 
@@ -119,22 +120,25 @@ public class EndLoadListener implements Listener {
 	@EventHandler
 	public void onEntityDeath(EntityDeathEvent event) {
 		if (event.getEntity().getType() == EntityType.ENDER_DRAGON) {
+			isDragonKilled = true;
 			handleExpierence();
 			handleTeleport();
 			handleWorldRegen(event);
 		}
 	}
+
 	@EventHandler
 	public void onPortalCreate(EntityCreatePortalEvent event) {
-		if(event.getEntityType() == EntityType.ENDER_DRAGON && event.getPortalType() == PortalType.ENDER) {
+		if (event.getEntityType() == EntityType.ENDER_DRAGON && event.getPortalType() == PortalType.ENDER) {
 			event.setCancelled(true);
 		}
 	}
-	
+
 	private void handleWorldRegen(EntityDeathEvent event) {
 		final World world = event.getEntity().getWorld();
 		new BukkitRunnable() {
 			private int timer;
+
 			@Override
 			public void run() {
 				timer++;
@@ -143,8 +147,7 @@ public class EndLoadListener implements Listener {
 						e.remove();
 					}
 				}
-				EndReset.log.info(Integer.toString(timer));
-				if(timer > 150) {
+				if (timer > 150) {
 					EndReset.log.info("Cancelled!");
 					cancel();
 				}
@@ -154,12 +157,20 @@ public class EndLoadListener implements Listener {
 		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 			@Override
 			public void run() {
-				for (int i = 0; i < world.getLoadedChunks().length; i++) {
-					Chunk c = world.getLoadedChunks()[i];
-					world.regenerateChunk(c.getX(), c.getZ());
+				for (World w : plugin.getServer().getWorlds()) {
+					if (w.getEnvironment() == Environment.THE_END) {
+						for (int x = -50; x < 50; x++) {
+							for (int z = -50; z < 50; z++) {
+								w.loadChunk(x, z);
+								w.regenerateChunk(x, z);
+								w.unloadChunk(x, z);
+							}
+						}
+					}
 				}
+				isDragonKilled = false;
 			}
-		}, 560 /* plugin.tpDelay * 1200 - 20 */);
+		}, 620 /* plugin.tpDelay * 1200 - 20 */);
 	}
 
 	private void handleTeleport() {
