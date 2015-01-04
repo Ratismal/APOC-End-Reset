@@ -182,7 +182,7 @@ public class EndLoadListener implements Listener {
 			public void run() {
 				for (Player player : plugin.getServer().getOnlinePlayers()) {
 					if (player.getWorld().getEnvironment().equals(Environment.THE_END)) {
-						EndReset.sendMessageToAllPlayers("You have been teleported out of the end!");
+						EndReset.sendMessageToAllPlayers("You have been teleported out of the End!");
 						player.teleport(player.getBedSpawnLocation(), TeleportCause.PLUGIN);
 					}
 				}
