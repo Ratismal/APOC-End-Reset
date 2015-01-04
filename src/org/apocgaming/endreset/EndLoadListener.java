@@ -72,7 +72,7 @@ public class EndLoadListener implements Listener {
 
 	@EventHandler
 	public void onEntityTeleport(PlayerTeleportEvent event) {
-		if (event.getTo().getWorld().getEnvironment() == Environment.THE_END && event.getPlayer().getWorld().getEnvironment() != Environment.THE_END) {
+		if (event.getTo().getWorld().getEnvironment() == Environment.THE_END && event.getFrom().getWorld().getEnvironment() != Environment.THE_END) {
 			if (isLocked) {
 				event.setCancelled(true);
 				event.getPlayer().teleport(event.getFrom(), PlayerTeleportEvent.TeleportCause.PLUGIN);
@@ -82,7 +82,8 @@ public class EndLoadListener implements Listener {
 			if (!isDragonKilled) {
 				addToList(event.getPlayer());
 			}
-		} else if (event.getFrom().getWorld().getEnvironment() == Environment.THE_END && event.getTo().getWorld().getEnvironment() != Environment.THE_END) {
+		} else if (event.getFrom().getWorld().getEnvironment() == Environment.THE_END
+				&& event.getTo().getWorld().getEnvironment() != Environment.THE_END) {
 			if (!isDragonKilled) {
 				removeFromList(event.getPlayer());
 			}
@@ -95,7 +96,7 @@ public class EndLoadListener implements Listener {
 			isDragonKilled = true;
 			handleExpierence();
 			handleTeleport();
-			handleWorldRegen(event);
+			handleWorldRegen(event.getEntity().getWorld());
 		}
 	}
 
@@ -134,7 +135,7 @@ public class EndLoadListener implements Listener {
 		}
 	}
 
-	private void handleExpierence() {
+	public void handleExpierence() {
 		double totalDamageDone = 0;
 		int totalExpForEveryBody = plugin.totalExp;
 		for (Map.Entry e : plugin.getExpierenceDistributerManager().getContents().entrySet()) {
@@ -150,9 +151,13 @@ public class EndLoadListener implements Listener {
 				highestDamage = percentDamage;
 				didMostDamage = player;
 			}
-			player.sendMessage("\247c[\247bEndReset\247c]\247r You have been rewarded " + expForPerson + " exp points for doing "
-					+ (int) percentDamage + "% of the damage.");
-			player.giveExp(expForPerson);
+			if (expForPerson > 0) {
+				EndReset.sendMessageToPlayer(player, "You have been rewarded " + expForPerson + " exp points for doing " + (int) percentDamage
+						+ "% of the damage.");
+				player.giveExp(expForPerson);
+			} else {
+				EndReset.sendMessageToPlayer(player, "You did no damage to the ender dragon.");
+			}
 		}
 		if (didMostDamage != null && highestDamage != 0 && plugin.rewardEgg) {
 			hasSpace = false;
@@ -174,7 +179,7 @@ public class EndLoadListener implements Listener {
 		plugin.getExpierenceDistributerManager().getContents().clear();
 	}
 
-	private void handleTeleport() {
+	public void handleTeleport() {
 		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 			@Override
 			public void run() {
@@ -192,7 +197,8 @@ public class EndLoadListener implements Listener {
 							loc = player.getBedSpawnLocation();
 						}
 						player.teleport(loc, PlayerTeleportEvent.TeleportCause.PLUGIN);
-						EndReset.sendMessageToPlayer(player, "The end went on lock down! After " + (plugin.resetDelay - plugin.tpDelay) + "minutes it will be open again.");
+						EndReset.sendMessageToPlayer(player, "The end went on lock down! After " + (plugin.resetDelay - plugin.tpDelay)
+								+ "minutes it will be open again.");
 					}
 				}
 				if (plugin.endLockdown) {
@@ -202,8 +208,7 @@ public class EndLoadListener implements Listener {
 		}, plugin.tpDelay * 1200);
 	}
 
-	private void handleWorldRegen(EntityDeathEvent event) {
-		final World world = event.getEntity().getWorld();
+	public void handleWorldRegen(final World world) {
 		new BukkitRunnable() {
 			private int timer;
 
@@ -236,10 +241,6 @@ public class EndLoadListener implements Listener {
 					}
 				}
 				EndReset.sendMessageToAllPlayers("The end has been reset!");
-				if (plugin.endLockdown) {
-					isLocked = false;
-				}
-				isDragonKilled = false;
 			}
 		}, plugin.resetDelay * 1200);
 	}

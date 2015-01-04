@@ -15,6 +15,17 @@ commands:
       usage: /<command>
       permission: endreset.get
       permission-message: You don't have <permission>
+  resetend:
+      description: Regenerates the End.
+      usage: /<command>
+      permission: endreset.get
+      permission-message: You don't have <permission>
+  clearend:
+      description: Teleports everybody out of the end.
+      usage: /<command>
+      permission: endreset.get
+      permission-message: You don't have <permission>
+
    giveexp:
       description: Gives a give amound of EXP.
       usage: /<command> <amount>

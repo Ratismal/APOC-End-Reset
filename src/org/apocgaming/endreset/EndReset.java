@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -33,12 +34,11 @@ public class EndReset extends JavaPlugin {
 	}
 
 	public static void sendMessageToPlayer(Player player, String message) {
-		if(null != player) {
+		if (null != player) {
 			player.sendMessage("\247c[\247bEndReset\247c]\247r " + message);
 		}
 	}
 
-	
 	public ExpierenceDistributerManager getExpierenceDistributerManager() {
 		return expierenceDistributerManager;
 	}
@@ -66,7 +66,8 @@ public class EndReset extends JavaPlugin {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String commandLabel, String[] args) {
-		if (commandLabel.equalsIgnoreCase("getPlayers")) {
+		switch (commandLabel.toLowerCase()) {
+		case "listplayers":
 			if (sender instanceof Player) {
 				if (args.length == 0) {
 					sender.sendMessage("--Beginning to list player data-- [" + getExpierenceDistributerManager().getContents().size() + "] total");
@@ -79,28 +80,22 @@ public class EndReset extends JavaPlugin {
 					return true;
 				}
 			}
-		}
-		if (commandLabel.equalsIgnoreCase("getexp")) {
-			for (Player p : Bukkit.getOnlinePlayers()) {
-				p.sendMessage(p.getName() + "'s EXP is: " + p.getExp() + "  |  " + p.getExpToLevel() + "  |  " + p.getLevel() + "  |  "
-						+ p.getTotalExperience());
-				return true;
-			}
-		}
-
-		if (commandLabel.equalsIgnoreCase("giveexp")) {
-			for (Player p : Bukkit.getOnlinePlayers()) {
-				if (args.length == 1) {
-					int exp = Integer.parseInt(args[0]);
-					p.giveExp(exp);
-					p.sendMessage("Gave " + p.getName() + " " + exp + " exp");
-					return true;
-				} else {
-					sender.sendMessage("U failed");
+			break;
+		case "clearend":
+			endLoadListener.handleTeleport();
+			sender.sendMessage("Teleported all players out of the End.");
+			break;
+		case "resetend":
+			for (World w : getServer().getWorlds()) {
+				if (w.getEnvironment() == World.Environment.THE_END) {
+					endLoadListener.handleWorldRegen(w);
+					break;
 				}
 			}
+			break;
+		default:
+			return false;
 		}
-
 		return false;
 	}
 }
