@@ -79,41 +79,57 @@ public class EndReset extends JavaPlugin {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String commandLabel, String[] args) {
-		if (commandLabel.equalsIgnoreCase("getPlayers")) {
-			if (sender instanceof Player) {
-				if (args.length == 0) {
-					sender.sendMessage("--Beginning to list player data-- [" + getExpierenceDistributerManager().getContents().size() + "] total");
-					for (Map.Entry e : this.getExpierenceDistributerManager().getContents().entrySet()) {
-						sender.sendMessage("Player [" + e.getKey() + "] has a dmg value of " + e.getValue());
+		switch (commandLabel.toLowerCase()){
+			case "listplayers":
+					if (sender instanceof Player) {
+						if (args.length == 0) {
+							sender.sendMessage("--Beginning to list player data-- [" + getExpierenceDistributerManager().getContents().size() + "] total");
+							for (Map.Entry e : this.getExpierenceDistributerManager().getContents().entrySet()) {
+								sender.sendMessage("Player [" + e.getKey() + "] has a dmg value of " + e.getValue());
+							}
+							return true;
+						} else {
+							sender.sendMessage("Please don't use any arguments.");
+							return true;
+						}
 					}
-					return true;
-				} else {
-					sender.sendMessage("Please don't use any arguments.");
+				break;
+			case "getexp":
+				for (Player p : Bukkit.getOnlinePlayers()) {
+					p.sendMessage(p.getName() + "'s EXP is: " + p.getExp() + "  |  " + p.getExpToLevel() + "  |  " + p.getLevel() + "  |  "
+							+ p.getTotalExperience());
 					return true;
 				}
-			}
-		}
-		if (commandLabel.equalsIgnoreCase("getexp")) {
-			for (Player p : Bukkit.getOnlinePlayers()) {
-				p.sendMessage(p.getName() + "'s EXP is: " + p.getExp() + "  |  " + p.getExpToLevel() + "  |  " + p.getLevel() + "  |  "
-						+ p.getTotalExperience());
+				break;
+			case "giveexp":
+				for (Player p : Bukkit.getOnlinePlayers()) {
+					if (args.length == 1) {
+						int exp = Integer.parseInt(args[0]);
+						p.giveExp(exp);
+						p.sendMessage("Gave " + p.getName() + " " + exp + " exp");
+						return true;
+					} else {
+						sender.sendMessage("U failed");
+					}
+				}
 				return true;
-			}
-		}
-
-		if (commandLabel.equalsIgnoreCase("giveexp")) {
-			for (Player p : Bukkit.getOnlinePlayers()) {
-				if (args.length == 1) {
-					int exp = Integer.parseInt(args[0]);
-					p.giveExp(exp);
-					p.sendMessage("Gave " + p.getName() + " " + exp + " exp");
-					return true;
-				} else {
-					sender.sendMessage("U failed");
+			case "clearend":
+				endLoadListener.handleTeleport();
+				sender.sendMessage("Teleported all players out of the End.");
+				return true;
+			case "resetend":
+				World end = null;
+			for(World w : this.getServer().getWorlds()){
+				if(w.getEnvironment()== World.Environment.THE_END){
+					end = w;
 				}
 			}
+				if(end!=null) {
+					endLoadListener.handleWorldRegen();
+				}
+			default:
+				return false;
 		}
-
 		return false;
 	}
 }
