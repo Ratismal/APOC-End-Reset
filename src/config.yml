@@ -20,9 +20,9 @@ reward-egg: true
 # Where should we teleport the players after we close the end?
 # Choose the name of the world and the coordinates X,Y,Z to where they will spawn at. If you set X,Y,Z to all to 0, players will be teleported to their bed location or spawn.
 end-tp-world: world
-end-tp-X: 230
-end-tp-Y: 12
-end-tp-Z: 734
+end-tp-X: 0
+end-tp-Y: 0
+end-tp-Z: 0
 # The time the players have left in the end after killing the dragon before they get teleported to the given coordinates above. (In minutes)
 end-tp-out-delay: 2
 # How long until the world is reset in minutes? (After the dragon is killed)

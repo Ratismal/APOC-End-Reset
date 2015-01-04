@@ -5,6 +5,7 @@ import java.util.Map;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.PortalType;
+import org.bukkit.TravelAgent;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
 import org.bukkit.craftbukkit.v1_6_R3.entity.CraftArrow;
@@ -42,9 +43,9 @@ public class EndLoadListener implements Listener {
 	public void onPortal(PlayerPortalEvent event) {
 		if (event.getCause() == PlayerTeleportEvent.TeleportCause.END_PORTAL && event.getTo().getWorld().getEnvironment().equals(Environment.THE_END)) {
 			if (isLocked) {
-				event.setCancelled(true);
-				event.getPlayer().teleport(event.getFrom(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+				event.getPlayer().teleport(new Location(plugin.getServer().getWorld(plugin.worldName), plugin.endTPcoords[0], plugin.endTPcoords[1], plugin.endTPcoords[2]), PlayerTeleportEvent.TeleportCause.PLUGIN);
 				EndReset.sendMessageToPlayer(event.getPlayer(), "The end is on lockdown.");
+				event.setCancelled(true);
 			}
 			if (!isDragonKilled) {
 				addToList(event.getPlayer());
@@ -52,6 +53,7 @@ public class EndLoadListener implements Listener {
 		}
 	}
 
+	
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		if (event.getPlayer().getWorld().getEnvironment() == Environment.THE_END) {
@@ -72,9 +74,10 @@ public class EndLoadListener implements Listener {
 
 	@EventHandler
 	public void onEntityTeleport(PlayerTeleportEvent event) {
-		if (event.getTo().getWorld().getEnvironment() == Environment.THE_END && event.getFrom().getWorld().getEnvironment() != Environment.THE_END) {
+		if (event.getTo().getWorld().getEnvironment() == Environment.THE_END && event.getFrom().getWorld().getEnvironment() != Environment.THE_END
+				&& event.getCause() != PlayerTeleportEvent.TeleportCause.END_PORTAL) {
 			if (isLocked) {
-				event.setCancelled(true);
+				 event.setCancelled(true);
 				event.getPlayer().teleport(event.getFrom(), PlayerTeleportEvent.TeleportCause.PLUGIN);
 				EndReset.sendMessageToPlayer(event.getPlayer(), "The end is on lockdown.");
 			}
@@ -95,8 +98,9 @@ public class EndLoadListener implements Listener {
 		if (event.getEntity().getType() == EntityType.ENDER_DRAGON) {
 			isDragonKilled = true;
 			handleExpierence();
-			handleTeleport();
-			handleWorldRegen(event.getEntity().getWorld());
+			handleTeleport(plugin.tpDelay * 1200);
+			removeEXPorbs(event.getEntity().getWorld());
+			handleWorldRegen(event.getEntity().getWorld(), plugin.resetDelay * 1200);
 		}
 	}
 
@@ -179,7 +183,7 @@ public class EndLoadListener implements Listener {
 		plugin.getExpierenceDistributerManager().getContents().clear();
 	}
 
-	public void handleTeleport() {
+	public void handleTeleport(final long delay) {
 		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 			@Override
 			public void run() {
@@ -197,18 +201,23 @@ public class EndLoadListener implements Listener {
 							loc = player.getBedSpawnLocation();
 						}
 						player.teleport(loc, PlayerTeleportEvent.TeleportCause.PLUGIN);
-						EndReset.sendMessageToPlayer(player, "The end went on lock down! After " + (plugin.resetDelay - plugin.tpDelay)
-								+ "minutes it will be open again.");
+						if (delay == 0) {
+							EndReset.sendMessageToPlayer(player, "End time is over :(");
+						} else {
+							EndReset.sendMessageToPlayer(player, "The end went on lock down! It will be open after "
+									+ (plugin.resetDelay - plugin.tpDelay) + " minutes.");
+						}
 					}
 				}
+				plugin.getExpierenceDistributerManager().setup();
 				if (plugin.endLockdown) {
 					isLocked = true;
 				}
 			}
-		}, plugin.tpDelay * 1200);
+		}, delay);
 	}
 
-	public void handleWorldRegen(final World world) {
+	public void removeEXPorbs(final World world) {
 		new BukkitRunnable() {
 			private int timer;
 
@@ -226,22 +235,30 @@ public class EndLoadListener implements Listener {
 			}
 		}.runTaskTimer(plugin, 100, 1);
 
+	}
+
+	public void handleWorldRegen(final World w, long delay) {
 		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 			@Override
 			public void run() {
-				for (World w : plugin.getServer().getWorlds()) {
-					if (w.getEnvironment() == Environment.THE_END) {
-						for (int x = -15; x < 15; x++) {
-							for (int z = -15; z < 15; z++) {
+				if (w.getEnvironment() == Environment.THE_END) {
+					for (int x = -15; x < 15; x++) {
+						for (int z = -15; z < 15; z++) {
+							if (w.getPlayers().isEmpty()) {
 								w.loadChunk(x, z);
+							}
+							if (w.isChunkLoaded(x, z)) {
 								w.regenerateChunk(x, z);
+							}
+							if (w.getPlayers().isEmpty()) {
 								w.unloadChunk(x, z);
 							}
 						}
 					}
 				}
+				isLocked = false;
 				EndReset.sendMessageToAllPlayers("The end has been reset!");
 			}
-		}, plugin.resetDelay * 1200);
+		}, delay);
 	}
 }

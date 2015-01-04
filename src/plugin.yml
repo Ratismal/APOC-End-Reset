@@ -1,33 +1,12 @@
 name: APOC-End-Reset
 main: org.apocgaming.endreset.EndReset
-version: 0.4DEV
+version: 1.0
 authors: [Zilacon, Capsar, FreakyFalse]
 description: A bukkit minecraft plugin that automatically resets the end when the dragon is killed and distributes the rewards.
 
 commands:
-   getPlayers:
-      description: Get the players and their damage values to the ender dragon.
+   apocer:
+      description: Main command, shows all other available commands.
       usage: /<command>
-      permission: endreset.get
-      permission-message: You don't have <permission>
-   getexp:
-      description: Returns all possible EXP values.
-      usage: /<command>
-      permission: endreset.get
-      permission-message: You don't have <permission>
-  resetend:
-      description: Regenerates the End.
-      usage: /<command>
-      permission: endreset.get
-      permission-message: You don't have <permission>
-  clearend:
-      description: Teleports everybody out of the end.
-      usage: /<command>
-      permission: endreset.get
-      permission-message: You don't have <permission>
-
-   giveexp:
-      description: Gives a give amound of EXP.
-      usage: /<command> <amount>
       permission: endreset.admin
       permission-message: You don't have <permission>

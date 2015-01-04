@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -19,6 +20,7 @@ public class EndReset extends JavaPlugin {
 	private final EndLoadListener endLoadListener = new EndLoadListener(this);
 	static Logger log = Logger.getLogger("Minecraft");
 	public ConfigManager configmanager = null;
+	private String version = "1.0";
 	public int totalExp = 22075;
 	public boolean rewardEgg = true;
 	public String worldName = "Spawn";
@@ -66,36 +68,42 @@ public class EndReset extends JavaPlugin {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String commandLabel, String[] args) {
-		switch (commandLabel.toLowerCase()) {
-		case "listplayers":
-			if (sender instanceof Player) {
-				if (args.length == 0) {
-					sender.sendMessage("--Beginning to list player data-- [" + getExpierenceDistributerManager().getContents().size() + "] total");
-					for (Map.Entry e : this.getExpierenceDistributerManager().getContents().entrySet()) {
-						sender.sendMessage("Player [" + e.getKey() + "] has a dmg value of " + e.getValue());
+		if (command.getLabel().equalsIgnoreCase("apocer")) {
+			if (args.length == 0) {
+				sendMessageToSender(sender, "/apocer" + ChatColor.BLUE + " | Shows all the commands for Apoc-End-Reset");
+				sendMessageToSender(sender, "/apocer clear" + ChatColor.BLUE + " | Will teleport all the players out of the end.");
+				sendMessageToSender(sender, "/apocer reset" + ChatColor.BLUE + " | Will reset the end.");
+				sendMessageToSender(sender, "/apocer version" + ChatColor.BLUE + " | Shows the plugin version.");
+				sendMessageToSender(sender, "Programmed by Capsar & Freakyfalse of the Apocalyptic Gaming Network");
+				sendMessageToSender(sender, "http://apocgaming.org");
+				sendMessageToSender(sender, "https://github.com/Zilacon/APOC-End-Reset");
+			} else {
+				if (args[0].equalsIgnoreCase("clear")) {
+					endLoadListener.handleTeleport(0);
+					sendMessageToSender(sender, "Teleported all players out of the End.");
+				} else if (args[0].equalsIgnoreCase("reset")) {
+					for (World w : getServer().getWorlds()) {
+						if (w.getEnvironment() == World.Environment.THE_END) {
+							endLoadListener.handleWorldRegen(w, 0);
+							sendMessageToSender(sender, "The end is resetting.");
+							break;
+						}
 					}
-					return true;
-				} else {
-					sender.sendMessage("Please don't use any arguments.");
-					return true;
+				} else if (args[0].equalsIgnoreCase("version")) {
+					sendMessageToSender(sender, "APOC End-Reset Plugin | Version " + this.version);
+					sendMessageToSender(sender, "Programmed by Capsar & Freakyfalse of the Apocalyptic Gaming Network");
+					sendMessageToSender(sender, "http://apocgaming.org");
+					sendMessageToSender(sender, "https://github.com/Zilacon/APOC-End-Reset");
 				}
 			}
-			break;
-		case "clearend":
-			endLoadListener.handleTeleport();
-			sender.sendMessage("Teleported all players out of the End.");
-			break;
-		case "resetend":
-			for (World w : getServer().getWorlds()) {
-				if (w.getEnvironment() == World.Environment.THE_END) {
-					endLoadListener.handleWorldRegen(w);
-					break;
-				}
-			}
-			break;
-		default:
-			return false;
+			return true;
 		}
 		return false;
+	}
+
+	private void sendMessageToSender(CommandSender sender, String message) {
+		if (null != sender) {
+			sender.sendMessage("\247c[\247bEndReset\247c]\247r " + message);
+		}
 	}
 }
