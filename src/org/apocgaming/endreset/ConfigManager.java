@@ -32,6 +32,7 @@ public class ConfigManager {
 			double[] array = new double[]{config.getDoubleList(name).size()};
 			for(int i = 0; i < array.length; i++) {
 				array[i] = config.getDoubleList(name).get(i);
+				EndReset.log.info(Double.toString(array[i]));
 			}
 			return array;
 		}

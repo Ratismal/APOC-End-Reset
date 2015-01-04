@@ -1,23 +1,12 @@
 package org.apocgaming.endreset;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.Map;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
-import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
@@ -29,11 +18,6 @@ public class EndReset extends JavaPlugin {
 	private final EndLoadListener endLoadListener = new EndLoadListener(this);
 	static Logger log = Logger.getLogger("Minecraft");
 	public ConfigManager configmanager = null;
-	public final File OUR_FOLDER = new File("plugins\\End Reset\\");
-	public final File CRYSTAL_DATA = new File(OUR_FOLDER + "\\CrystalData.txt");
-	String seperator = System.getProperty("line.separator");
-	public static boolean writtenCrystals = false;
-
 	public int totalExp = 22075;
 	public boolean rewardEgg = true;
 	public String worldName = "Spawn";
@@ -48,14 +32,15 @@ public class EndReset extends JavaPlugin {
 		}
 	}
 
-	public ExpierenceDistributerManager getExpierenceDistributerManager() {
-		return expierenceDistributerManager;
+	public static void sendMessageToPlayer(Player player, String message) {
+		if(null != player) {
+			player.sendMessage("\247c[\247bEndReset\247c]\247r " + message);
+		}
 	}
 
-	public static void sendMessageToAllPlayersDebug(String message) {
-		for (Player p : Bukkit.getOnlinePlayers()) {
-			p.sendMessage("\247c[\247aEndReset [DEBUG]\247c]\247r " + message);
-		}
+	
+	public ExpierenceDistributerManager getExpierenceDistributerManager() {
+		return expierenceDistributerManager;
 	}
 
 	public void onEnable() {
@@ -71,7 +56,9 @@ public class EndReset extends JavaPlugin {
 		totalExp = configmanager.getInt("total-exp");
 		rewardEgg = configmanager.getBoolean("reward-egg");
 		worldName = configmanager.getString("end-tp-world");
-		endTPcoords = configmanager.getDoubleArray("end-tp-coord");
+		endTPcoords[0] = configmanager.getDouble("end-tp-X");
+		endTPcoords[1] = configmanager.getDouble("end-tp-Y");
+		endTPcoords[2] = configmanager.getDouble("end-tp-Z");
 		tpDelay = configmanager.getInt("end-tp-out-delay");
 		resetDelay = configmanager.getInt("end-reset-time");
 		endLockdown = configmanager.getBoolean("end-lockdown");
