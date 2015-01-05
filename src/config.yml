@@ -25,7 +25,6 @@ end-tp-Y: 0
 end-tp-Z: 0
 # The time the players have left in the end after killing the dragon before they get teleported to the given coordinates above. (In minutes)
 end-tp-out-delay: 2
+# The end is in lockdown (nobody can enter) between these 2 times.
 # How long until the world is reset in minutes? (After the dragon is killed)
 end-reset-time: 3
-# Should we lock down the world until the end has reset after the players got teleported out? This prevents players from entering the end again.
-end-lockdown: true

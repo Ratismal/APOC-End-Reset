@@ -2,10 +2,10 @@ package org.apocgaming.endreset;
 
 import java.util.Map;
 
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.PortalType;
-import org.bukkit.TravelAgent;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
 import org.bukkit.craftbukkit.v1_6_R3.entity.CraftArrow;
@@ -22,6 +22,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -43,22 +44,23 @@ public class EndLoadListener implements Listener {
 	public void onPortal(PlayerPortalEvent event) {
 		if (event.getCause() == PlayerTeleportEvent.TeleportCause.END_PORTAL && event.getTo().getWorld().getEnvironment().equals(Environment.THE_END)) {
 			if (isLocked) {
-				event.getPlayer().teleport(new Location(plugin.getServer().getWorld(plugin.worldName), plugin.endTPcoords[0], plugin.endTPcoords[1], plugin.endTPcoords[2]), PlayerTeleportEvent.TeleportCause.PLUGIN);
+				event.getPlayer().teleport(
+						new Location(plugin.getServer().getWorld(plugin.worldName), plugin.endTPcoords[0], plugin.endTPcoords[1],
+								plugin.endTPcoords[2]), PlayerTeleportEvent.TeleportCause.PLUGIN);
 				EndReset.sendMessageToPlayer(event.getPlayer(), "The end is on lockdown.");
 				event.setCancelled(true);
 			}
 			if (!isDragonKilled) {
-				addToList(event.getPlayer());
+				addPlayerToList(event.getPlayer());
 			}
 		}
 	}
 
-	
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		if (event.getPlayer().getWorld().getEnvironment() == Environment.THE_END) {
 			if (!isDragonKilled) {
-				addToList(event.getPlayer());
+				addPlayerToList(event.getPlayer());
 			}
 		}
 	}
@@ -67,7 +69,7 @@ public class EndLoadListener implements Listener {
 	public void onPlayerLeave(PlayerQuitEvent event) {
 		if (event.getPlayer().getWorld().getEnvironment() == Environment.THE_END) {
 			if (!isDragonKilled) {
-				removeFromList(event.getPlayer());
+				removePlayerFromList(event.getPlayer());
 			}
 		}
 	}
@@ -77,18 +79,18 @@ public class EndLoadListener implements Listener {
 		if (event.getTo().getWorld().getEnvironment() == Environment.THE_END && event.getFrom().getWorld().getEnvironment() != Environment.THE_END
 				&& event.getCause() != PlayerTeleportEvent.TeleportCause.END_PORTAL) {
 			if (isLocked) {
-				 event.setCancelled(true);
+				event.setCancelled(true);
 				event.getPlayer().teleport(event.getFrom(), PlayerTeleportEvent.TeleportCause.PLUGIN);
 				EndReset.sendMessageToPlayer(event.getPlayer(), "The end is on lockdown.");
 			}
 
 			if (!isDragonKilled) {
-				addToList(event.getPlayer());
+				addPlayerToList(event.getPlayer());
 			}
 		} else if (event.getFrom().getWorld().getEnvironment() == Environment.THE_END
 				&& event.getTo().getWorld().getEnvironment() != Environment.THE_END) {
 			if (!isDragonKilled) {
-				removeFromList(event.getPlayer());
+				removePlayerFromList(event.getPlayer());
 			}
 		}
 	}
@@ -97,8 +99,11 @@ public class EndLoadListener implements Listener {
 	public void onEntityDeath(EntityDeathEvent event) {
 		if (event.getEntity().getType() == EntityType.ENDER_DRAGON) {
 			isDragonKilled = true;
+			EndReset.sendMessageToAllPlayers("The ender dragon has been killed! You can kill the dragon after " + plugin.resetDelay
+					+ (plugin.resetDelay == 1 ? " minute" : " minutes" + "."));
 			handleExpierence();
-			handleTeleport(plugin.tpDelay * 1200);
+			handleTeleport(plugin.tpDelay * 1200, "The end went on lock down! It will be open after " + (plugin.resetDelay - plugin.tpDelay)
+					+ ((plugin.resetDelay - plugin.tpDelay) == 1 ? " minute." : " minutes."));
 			removeEXPorbs(event.getEntity().getWorld());
 			handleWorldRegen(event.getEntity().getWorld(), plugin.resetDelay * 1200);
 		}
@@ -128,11 +133,20 @@ public class EndLoadListener implements Listener {
 		}
 	}
 
-	private void removeFromList(Player p) {
+	@EventHandler
+	public void onChunkLoad(ChunkLoadEvent event) {
+		if (event.getWorld().getEnvironment() == Environment.THE_END) {
+			plugin.getChunks().add(new APOCChunk(event.getChunk().getX(), event.getChunk().getZ()));
+			EndReset.log.info("Chunk | " + event.getChunk().getX() + " : " + event.getChunk().getZ());
+			EndReset.log.info("Size: " + plugin.getChunks().size());
+		}
+	}
+
+	private void removePlayerFromList(Player p) {
 		plugin.getExpierenceDistributerManager().getContents().remove(p);
 	}
 
-	private void addToList(Player p) {
+	private void addPlayerToList(Player p) {
 		if (!plugin.getExpierenceDistributerManager().getContents().containsKey(p)) {
 			plugin.getExpierenceDistributerManager().getContents().put(p, 0.0);
 			EndReset.sendMessageToPlayer(p, "You have been added to the dragon fight!");
@@ -170,7 +184,7 @@ public class EndLoadListener implements Listener {
 					hasSpace = true;
 					didMostDamage.getInventory().addItem(new ItemStack(Material.DRAGON_EGG, 1));
 					didMostDamage.sendMessage("\247c[\247bEndReset\247c]\247r You did the most damage to the ender dragon. "
-							+ "There for you have been rewared the dragon egg!");
+							+ "Therefore you have been rewarded the dragon egg!");
 					break;
 				}
 			}
@@ -183,7 +197,7 @@ public class EndLoadListener implements Listener {
 		plugin.getExpierenceDistributerManager().getContents().clear();
 	}
 
-	public void handleTeleport(final long delay) {
+	public void handleTeleport(final long delay, final String custom) {
 		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 			@Override
 			public void run() {
@@ -202,15 +216,12 @@ public class EndLoadListener implements Listener {
 						}
 						player.teleport(loc, PlayerTeleportEvent.TeleportCause.PLUGIN);
 						if (delay == 0) {
-							EndReset.sendMessageToPlayer(player, "End time is over :(");
+							EndReset.sendMessageToPlayer(player, custom);
 						} else {
-							EndReset.sendMessageToPlayer(player, "The end went on lock down! It will be open after "
-									+ (plugin.resetDelay - plugin.tpDelay) + ((plugin.resetDelay - plugin.tpDelay) == 1 ? " minute.": " minutes."));
+							EndReset.sendMessageToAllPlayers(custom);
+							isLocked = true;
 						}
 					}
-				}
-				if (plugin.endLockdown && delay != 0) {
-					isLocked = true;
 				}
 			}
 		}, delay);
@@ -241,18 +252,11 @@ public class EndLoadListener implements Listener {
 			@Override
 			public void run() {
 				if (w.getEnvironment() == Environment.THE_END) {
-					for (int x = -15; x < 15; x++) {
-						for (int z = -15; z < 15; z++) {
-							if (w.getPlayers().isEmpty()) {
-								w.loadChunk(x, z);
-							}
-							if (w.isChunkLoaded(x, z)) {
-								w.regenerateChunk(x, z);
-							}
-							if (w.getPlayers().isEmpty()) {
-								w.unloadChunk(x, z);
-							}
+						if (!w.getPlayers().isEmpty()) {
+							handleTeleport(0, "You can't be in the world when it's resetting.");
 						}
+					for (APOCChunk c : plugin.getChunks()) {
+						w.regenerateChunk(c.getX(), c.getZ());
 					}
 				}
 				isDragonKilled = false;

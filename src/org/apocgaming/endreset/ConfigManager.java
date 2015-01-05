@@ -1,7 +1,5 @@
 package org.apocgaming.endreset;
 
-import java.util.Arrays;
-
 import org.bukkit.configuration.file.FileConfiguration;
 
 public class ConfigManager {

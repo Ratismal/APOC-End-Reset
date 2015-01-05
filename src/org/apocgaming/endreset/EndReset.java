@@ -1,14 +1,17 @@
 package org.apocgaming.endreset;
 
-import java.util.Map;
+import java.util.HashSet;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Chunk;
 import org.bukkit.World;
+import org.bukkit.World.Environment;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
@@ -20,14 +23,14 @@ public class EndReset extends JavaPlugin {
 	private final EndLoadListener endLoadListener = new EndLoadListener(this);
 	static Logger log = Logger.getLogger("Minecraft");
 	public ConfigManager configmanager = null;
-	private String version = "1.0";
+	private String version = "1.1";
 	public int totalExp = 22075;
 	public boolean rewardEgg = true;
-	public String worldName = "Spawn";
-	public double[] endTPcoords = new double[] { 0, 25, 0 };
+	public String worldName = "world";
+	public double[] endTPcoords = new double[] { 0, 0, 0 };
 	public int tpDelay = 10;
 	public int resetDelay = 30;
-	public boolean endLockdown = true;
+	private HashSet<APOCChunk> chunkList = new HashSet<APOCChunk>();
 
 	public static void sendMessageToAllPlayers(String message) {
 		for (Player p : Bukkit.getOnlinePlayers()) {
@@ -52,6 +55,26 @@ public class EndReset extends JavaPlugin {
 		configmanager = new ConfigManager(getConfig());
 		loadConfig();
 		log.info("APOC End-Reset Enabled.");
+		for (World w : this.getServer().getWorlds()) {
+			if (w.getEnvironment() == Environment.THE_END) {
+				for (Chunk c : w.getLoadedChunks()) {
+					getChunks().add(new APOCChunk(c.getX(),c.getZ()));
+				}
+			}
+		}
+
+	}
+
+	public HashSet<APOCChunk> getChunks() {
+		return chunkList;
+	}
+
+	@Override
+	public void onDisable() {
+		expierenceDistributerManager.getContents().clear();
+		getChunks().clear();
+		this.getServer().getScheduler().cancelTasks(this);
+		log.info("[ " + this.getName() + " ] has been disabled.");
 	}
 
 	private void loadConfig() {
@@ -63,7 +86,6 @@ public class EndReset extends JavaPlugin {
 		endTPcoords[2] = configmanager.getDouble("end-tp-Z");
 		tpDelay = configmanager.getInt("end-tp-out-delay");
 		resetDelay = configmanager.getInt("end-reset-time");
-		endLockdown = configmanager.getBoolean("end-lockdown");
 	}
 
 	@Override
@@ -80,13 +102,21 @@ public class EndReset extends JavaPlugin {
 				sendMessageToSender(sender, "https://github.com/Zilacon/APOC-End-Reset");
 			} else {
 				if (args[0].equalsIgnoreCase("clear")) {
-					endLoadListener.handleTeleport(0);
+					endLoadListener.handleTeleport(0, "An admin cleared the end.");
 					sendMessageToSender(sender, "Teleported all players out of the End.");
 				} else if (args[0].equalsIgnoreCase("reset")) {
 					for (World w : getServer().getWorlds()) {
 						if (w.getEnvironment() == World.Environment.THE_END) {
-							endLoadListener.handleWorldRegen(w, 0);
+							endLoadListener.handleWorldRegen(w, 5);
 							sendMessageToSender(sender, "The end is resetting.");
+							break;
+						}
+					}
+				} else if (args[0].equalsIgnoreCase("tpend")) {
+					for (World w : getServer().getWorlds()) {
+						if (w.getEnvironment() == World.Environment.THE_END) {
+							getServer().getPlayer(sender.getName()).teleport(w.getSpawnLocation(), TeleportCause.PLUGIN);
+							sendMessageToSender(sender, "Teleported to the end.");
 							break;
 						}
 					}
