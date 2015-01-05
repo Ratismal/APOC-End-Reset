@@ -137,8 +137,8 @@ public class EndLoadListener implements Listener {
 	public void onChunkLoad(ChunkLoadEvent event) {
 		if (event.getWorld().getEnvironment() == Environment.THE_END) {
 			plugin.getChunks().add(new APOCChunk(event.getChunk().getX(), event.getChunk().getZ()));
-			EndReset.log.info("Chunk | " + event.getChunk().getX() + " : " + event.getChunk().getZ());
-			EndReset.log.info("Size: " + plugin.getChunks().size());
+//			EndReset.log.info("Chunk | " + event.getChunk().getX() + " : " + event.getChunk().getZ());
+//			EndReset.log.info("Size: " + plugin.getChunks().size());
 		}
 	}
 
