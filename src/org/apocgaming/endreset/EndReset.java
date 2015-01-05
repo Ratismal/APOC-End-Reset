@@ -23,7 +23,7 @@ public class EndReset extends JavaPlugin {
 	private final EndLoadListener endLoadListener = new EndLoadListener(this);
 	static Logger log = Logger.getLogger("Minecraft");
 	public ConfigManager configmanager = null;
-	private String version = "1.1";
+	private String version = "1.2";
 	public int totalExp = 22075;
 	public boolean rewardEgg = true;
 	public String worldName = "world";
@@ -96,7 +96,8 @@ public class EndReset extends JavaPlugin {
 				sendMessageToSender(sender, "/apocer clear" + ChatColor.BLUE + " | Will teleport all the players out of the end.");
 				sendMessageToSender(sender, "/apocer reset" + ChatColor.BLUE + " | Will reset the end.");
 				sendMessageToSender(sender, "/apocer version" + ChatColor.BLUE + " | Shows the plugin version.");
-				sendMessageToSender(sender, "/apocer reload" + ChatColor.BLUE + " | reloads the plugin.");
+				sendMessageToSender(sender, "/apocer reload" + ChatColor.BLUE + " | Reloads the plugin.");
+				sendMessageToSender(sender, "/apocer tpend" + ChatColor.BLUE + " | Teleport to the end.");
 				sendMessageToSender(sender, "Programmed by Capsar & Freakyfalse of the Apocalyptic Gaming Network");
 				sendMessageToSender(sender, "http://apocgaming.org");
 				sendMessageToSender(sender, "https://github.com/Zilacon/APOC-End-Reset");
@@ -120,6 +121,8 @@ public class EndReset extends JavaPlugin {
 							break;
 						}
 					}
+				} else if (args[0].equalsIgnoreCase("listchunks")) {
+					sendMessageToSender(sender, getChunks().size() + " chunks are saved for reset.");
 				} else if (args[0].equalsIgnoreCase("version")) {
 					sendMessageToSender(sender, "APOC End-Reset Plugin | Version " + this.version);
 					sendMessageToSender(sender, "Programmed by Capsar & Freakyfalse of the Apocalyptic Gaming Network");

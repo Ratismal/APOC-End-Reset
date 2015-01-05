@@ -252,13 +252,17 @@ public class EndLoadListener implements Listener {
 			@Override
 			public void run() {
 				if (w.getEnvironment() == Environment.THE_END) {
-						if (!w.getPlayers().isEmpty()) {
-							handleTeleport(0, "You can't be in the world when it's resetting.");
-						}
+					if (!w.getPlayers().isEmpty()) {
+						handleTeleport(0, "You can't be in the world when it's resetting.");
+					}
 					for (APOCChunk c : plugin.getChunks()) {
+						for(Entity e : w.getChunkAt(c.getX(), c.getZ()).getEntities()) {
+							e.remove();
+						}
 						w.regenerateChunk(c.getX(), c.getZ());
 					}
 				}
+				plugin.getChunks().clear();
 				isDragonKilled = false;
 				isLocked = false;
 				EndReset.sendMessageToAllPlayers("The end has been reset!");
