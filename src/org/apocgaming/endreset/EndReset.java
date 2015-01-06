@@ -13,6 +13,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
 
 /**
  * Created by Haze on 12/29/2014.
@@ -31,6 +32,7 @@ public class EndReset extends JavaPlugin {
 	public int tpDelay = 10;
 	public int resetDelay = 30;
 	private HashSet<APOCChunk> chunkList = new HashSet<APOCChunk>();
+	public int regenID;
 
 	public static void sendMessageToAllPlayers(String message) {
 		for (Player p : Bukkit.getOnlinePlayers()) {

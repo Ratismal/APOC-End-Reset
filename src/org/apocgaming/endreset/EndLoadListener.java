@@ -137,8 +137,9 @@ public class EndLoadListener implements Listener {
 	public void onChunkLoad(ChunkLoadEvent event) {
 		if (event.getWorld().getEnvironment() == Environment.THE_END) {
 			plugin.getChunks().add(new APOCChunk(event.getChunk().getX(), event.getChunk().getZ()));
-//			EndReset.log.info("Chunk | " + event.getChunk().getX() + " : " + event.getChunk().getZ());
-//			EndReset.log.info("Size: " + plugin.getChunks().size());
+			// EndReset.log.info("Chunk | " + event.getChunk().getX() + " : " +
+			// event.getChunk().getZ());
+			// EndReset.log.info("Size: " + plugin.getChunks().size());
 		}
 	}
 
@@ -247,26 +248,82 @@ public class EndLoadListener implements Listener {
 
 	}
 
-	public void handleWorldRegen(final World w, long delay) {
-		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+	public void handleWorldRegen(final World w, final long delay) {
+		plugin.regenID = new BukkitRunnable() {
+			private int timer;
+
 			@Override
 			public void run() {
-				if (w.getEnvironment() == Environment.THE_END) {
-					if (!w.getPlayers().isEmpty()) {
-						handleTeleport(0, "You can't be in the world when it's resetting.");
-					}
-					for (APOCChunk c : plugin.getChunks()) {
-						for(Entity e : w.getChunkAt(c.getX(), c.getZ()).getEntities()) {
-							e.remove();
+				timer++;
+				if (timer == delay / 1200 || delay == 5 || delay == 0) {
+					if (w.getEnvironment() == Environment.THE_END) {
+						if (!w.getPlayers().isEmpty()) {
+							instantTP("You can't be in the world when it's resetting.");
 						}
-						w.regenerateChunk(c.getX(), c.getZ());
+						for (APOCChunk c : plugin.getChunks()) {
+							for (Entity e : w.getChunkAt(c.getX(), c.getZ()).getEntities()) {
+								e.remove();
+							}
+							w.regenerateChunk(c.getX(), c.getZ());
+						}
+					}
+					plugin.getChunks().clear();
+					isDragonKilled = false;
+					isLocked = false;
+					EndReset.sendMessageToAllPlayers("The end has been reset!");
+					cancel();
+				} else if (timer != 1) {
+					String minute = ((delay / 1200) - timer == 1) ? " minute" : " minutes";
+					EndReset.sendMessageToAllPlayers("The end will lockdown in " + ((delay / 1200) - timer) + minute + "!");
+				}
+			}
+		}.runTaskTimer(plugin, 0, 1200).getTaskId();
+		//
+		// plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new
+		// Runnable() {
+		// @Override
+		// public void run() {
+		// if (w.getEnvironment() == Environment.THE_END) {
+		// if (!w.getPlayers().isEmpty()) {
+		// handleTeleport(0, "You can't be in the world when it's resetting.");
+		// }
+		// for (APOCChunk c : plugin.getChunks()) {
+		// for(Entity e : w.getChunkAt(c.getX(), c.getZ()).getEntities()) {
+		// e.remove();
+		// }
+		// w.regenerateChunk(c.getX(), c.getZ());
+		// }
+		// }
+		// plugin.getChunks().clear();
+		// isDragonKilled = false;
+		// isLocked = false;
+		// EndReset.sendMessageToAllPlayers("The end has been reset!");
+		// }
+		// }, delay);
+	}
+
+	public void instantTP(String custom) {
+		for (Player player : plugin.getServer().getOnlinePlayers()) {
+			if (player.getWorld().getEnvironment().equals(Environment.THE_END)) {
+				Location loc = new Location(plugin.getServer().getWorld(plugin.worldName), plugin.endTPcoords[0], plugin.endTPcoords[1],
+						plugin.endTPcoords[2]);
+				int iszero = 0;
+				for (int i = 0; i < plugin.endTPcoords.length; i++) {
+					if (plugin.endTPcoords[i] == 0) {
+						iszero++;
 					}
 				}
-				plugin.getChunks().clear();
-				isDragonKilled = false;
-				isLocked = false;
-				EndReset.sendMessageToAllPlayers("The end has been reset!");
+				if (iszero == 3) {
+					if (player.getBedSpawnLocation() == null) {
+						loc = player.getCompassTarget();
+					} else {
+						loc = player.getBedSpawnLocation();
+					}
+				}
+				player.teleport(loc, PlayerTeleportEvent.TeleportCause.PLUGIN);
+				EndReset.sendMessageToPlayer(player, custom);
 			}
-		}, delay);
+		}
 	}
+
 }
