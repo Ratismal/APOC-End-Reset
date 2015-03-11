@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="APOC End-Reset:jar">
-    <output-path>$PROJECT_DIR$/../../Plugin Test Server/plugins</output-path>
-    <root id="archive" name="APOC End-Reset.jar">
-      <element id="module-output" name="APOC End-Reset" />
-    </root>
-  </artifact>
-</component>
