@@ -32,6 +32,8 @@ public class GameListener implements Listener {
             if (worldManager.getGameWorld().isLocked()) {
                 event.getPlayer().teleport(worldManager.getSpawnLocation());
                 MessageUtil.sendMessage(event.getPlayer(), "The end is on lockdown.");
+                event.setCancelled(true);
+                event.getPlayer().teleport(event.getFrom());
             }
             else {
                 if (!gameHandler.getRunningGame().hasPlayer(event.getPlayer())) {

@@ -1,9 +1,11 @@
 package org.apocgaming.endreset.world;
 
+import org.apocgaming.endreset.util.MessageUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -11,12 +13,13 @@ import java.util.Set;
 /**
  * Created by thomas15v on 11/03/15.
  */
-public class GameWorld implements Runnable {
+public class GameWorld extends BukkitRunnable {
 
     private World world;
     private WorldManager worldManager;
     private Set<GameChunk> modifiedchunks;
     private boolean locked = false;
+    private int minutesleft = 0;
     private boolean beingreset = false;
 
     public GameWorld(World world, WorldManager worldManager){
@@ -40,8 +43,6 @@ public class GameWorld implements Runnable {
     public void loadChunk(GameChunk chunk){
         if (!beingreset && !this.modifiedchunks.contains(chunk))
             this.modifiedchunks.add(chunk);
-        else
-            System.out.println("blocked: " + chunk);
     }
 
     public void unloadChunk(Chunk chunk) {
@@ -51,7 +52,8 @@ public class GameWorld implements Runnable {
 
     public void lock(int minutes){
         locked = true;
-        Bukkit.getScheduler().runTaskLater(worldManager.getPlugin(), this, 1200 * minutes);
+        minutesleft = minutes;
+        runTaskTimer(worldManager.getPlugin(), 0, 1200);
     }
 
     @Override
@@ -65,7 +67,15 @@ public class GameWorld implements Runnable {
 
     @Override
     public void run() {
-        locked = false;
+        if (minutesleft == 0) {
+            locked = false;
+            cancel();
+            MessageUtil.sendMessageToAllPlayers("The end is unlocked !!!");
+        }
+        else {
+            MessageUtil.sendMessageToAllPlayers("The end will lockdown in " + minutesleft + " minute(s) !");
+            minutesleft--;
+        }
     }
 
     public World getWorld() {

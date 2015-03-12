@@ -42,12 +42,13 @@ public class ExperienceManager {
         for (String playername : data.keySet())
         {
             int damage = data.get(playername);
-            int reward = (damage / totaldamage) * totalrewardxp;
             Player player = Bukkit.getPlayer(playername);
-            if (reward == 0){
+            if (damage == 0){
                 MessageUtil.sendMessage(player, "You did no damage to the ender dragon enough to get an award.");
                 return;
             }
+
+            int reward = (damage / totaldamage) * totalrewardxp;
             player.giveExp(reward);
             MessageUtil.sendMessage(player, "You have been rewarded " + reward + " exp points for doing " + (reward / totalrewardxp)*100
                     + "% of the damage.");

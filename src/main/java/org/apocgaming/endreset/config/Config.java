@@ -13,7 +13,7 @@ public class Config {
 	
 	public Config(FileConfiguration config) {
 		this.config = config;
-
+		reload();
 	}
 
 	public void reload() {

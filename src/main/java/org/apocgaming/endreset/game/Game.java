@@ -23,6 +23,7 @@ public class Game {
 
     public void addPlayer(Player player) {
         playingplayers.add(player.getName());
+        experienceManager.givePlayer(player, 0);
     }
 
     public void removePlayer(Player player) {
