@@ -33,8 +33,10 @@ public class GameHandler {
     public void stopGame() {
         if (isGameRunning()) {
             getRunningGame().stopGame();
+            worldManager.getGameWorld().lock();
             worldManager.getGameWorld().reset();
-            worldManager.getGameWorld().lock(config.getResetDelay());
+            //worldManager.getGameWorld().lock(config.getResetDelay());
+
             newGame();
         }
     }

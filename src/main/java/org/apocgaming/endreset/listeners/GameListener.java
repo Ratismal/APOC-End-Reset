@@ -3,6 +3,7 @@ package org.apocgaming.endreset.listeners;
 import org.apocgaming.endreset.game.GameHandler;
 import org.apocgaming.endreset.util.MessageUtil;
 import org.apocgaming.endreset.world.WorldManager;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.EntityType;
@@ -11,6 +12,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
 /**
@@ -33,7 +35,7 @@ public class GameListener implements Listener {
                 event.getPlayer().teleport(worldManager.getSpawnLocation());
                 MessageUtil.sendMessage(event.getPlayer(), "The end is on lockdown.");
                 event.setCancelled(true);
-                event.getPlayer().teleport(event.getFrom());
+                event.getPlayer().teleport(event.getPlayer().getWorld().getSpawnLocation());
             }
             else {
                 if (!gameHandler.getRunningGame().hasPlayer(event.getPlayer())) {

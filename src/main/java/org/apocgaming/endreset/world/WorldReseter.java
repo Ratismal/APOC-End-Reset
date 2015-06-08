@@ -1,10 +1,10 @@
 package org.apocgaming.endreset.world;
 
 import org.apocgaming.endreset.util.MessageUtil;
-import org.bukkit.Chunk;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.io.File;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -25,19 +25,26 @@ public class WorldReseter extends BukkitRunnable {
         this.chunkIterator = chunks.iterator();
     }
 
+
     @Override
-    public void run() {
-        if (chunkIterator.hasNext()) {
+    public void run() { //World reseter
+        if (chunkIterator.hasNext()) { //There are more chunks to reset
             GameChunk chunk = chunkIterator.next();
+            //world.loadChunk(chunk.getX(), chunk.getZ());
             world.regenerateChunk(chunk.getX(), chunk.getZ());
+
             world.refreshChunk(chunk.getX(), chunk.getZ());
+            //world.unloadChunk(chunk.getX(), chunk.getZ());
             System.out.println("generating " + chunk +  " with " + chunks.size() + " chunks left");
             chunkIterator.remove();
 
-        }else {
+        }else { //World has been reset
             MessageUtil.sendMessageToAllPlayers("The end has been reset!");
+            gameWorld.unlock();
             cancel();
         }
 
     }
+
+
 }

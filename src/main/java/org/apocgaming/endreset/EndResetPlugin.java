@@ -5,7 +5,13 @@ import org.apocgaming.endreset.game.GameHandler;
 import org.apocgaming.endreset.listeners.GameListener;
 import org.apocgaming.endreset.listeners.WorldListener;
 import org.apocgaming.endreset.world.WorldManager;
+import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.sql.ResultSet;
+import java.sql.Statement;
 
 /**
  * Created by thomas15v on 11/03/15.
@@ -39,5 +45,22 @@ public class EndResetPlugin extends JavaPlugin
 
     public Config getPluginconfig() {
         return pluginconfig;
+    }
+
+    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+        if (cmd.getName().equalsIgnoreCase("endreset")) {
+            if (args.length > 0) {
+                if (args[0].equalsIgnoreCase("reset")){
+                    System.out.println("Forcing end reset!");
+                    gameHandler.stopGame();
+                }
+            } else {
+                sender.sendMessage(ChatColor.BLUE + "/endreset reset   reloads config");
+            }
+
+            return true;
+        }
+
+        return false;
     }
 }
