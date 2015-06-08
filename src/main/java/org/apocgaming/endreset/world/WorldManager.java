@@ -21,7 +21,7 @@ public class WorldManager {
         this.plugin = plugin;
         this.config = plugin.getPluginconfig();
         spawnLocation = getOverWorld().getSpawnLocation();
-        this.gameWorld = new GameWorld(getEndWorld(), this);
+        this.gameWorld = new GameWorld(getEndWorld(), this, config);
     }
 
     public World getOverWorld(){

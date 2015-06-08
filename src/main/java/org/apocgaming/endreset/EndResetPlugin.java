@@ -5,7 +5,9 @@ import org.apocgaming.endreset.game.GameHandler;
 import org.apocgaming.endreset.listeners.GameListener;
 import org.apocgaming.endreset.listeners.WorldListener;
 import org.apocgaming.endreset.world.WorldManager;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -50,12 +52,25 @@ public class EndResetPlugin extends JavaPlugin
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (cmd.getName().equalsIgnoreCase("endreset")) {
             if (args.length > 0) {
-                if (args[0].equalsIgnoreCase("reset")){
+                if (args[0].equalsIgnoreCase("reset")) {
                     System.out.println("Forcing end reset!");
                     gameHandler.stopGame();
+
                 }
-            } else {
+                else if (args[0].equalsIgnoreCase("size")) {
+                    System.out.println("Forcing end reset!");
+                    World tempworld =  Bukkit.getWorld(pluginconfig.endWorldName());
+                    try {
+                        System.out.println(tempworld.getPlayers().size());
+                    }
+                    catch(NullPointerException e){
+                        System.out.println("World not loaded!");
+                    }
+                }
+            }
+                else {
                 sender.sendMessage(ChatColor.BLUE + "/endreset reset   reloads config");
+                sender.sendMessage(ChatColor.BLUE + "/endreset size    shows how many people are in the end");
             }
 
             return true;

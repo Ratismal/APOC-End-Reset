@@ -1,5 +1,6 @@
 package org.apocgaming.endreset.world;
 
+import org.apocgaming.endreset.config.Config;
 import org.apocgaming.endreset.util.MessageUtil;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -20,37 +21,42 @@ public class GameWorld extends BukkitRunnable {
     private boolean locked = false;
     private int minutesleft = 0;
     private boolean beingreset = false;
+    private Config config;
 
-    public GameWorld(World world, WorldManager worldManager){
-        this.world = world;
+
+    public GameWorld(World world, WorldManager worldManager, Config config) {
+        //this.world = Bukkit.getWorld(config.endWorldName());
         this.worldManager = worldManager;
         this.modifiedchunks = new HashSet<>();
+        this.config = config;
         //To Make sure we get a dragon at least
-        loadChunk(new GameChunk(world.getChunkAt(0,0)));
+        loadChunk(new GameChunk(world.getChunkAt(0, 0)));
     }
 
-    public void reset(){
-        while (world.getPlayers().size() != 0) {
-            for (Player player : world.getPlayers()) {
-                MessageUtil.sendMessageToAllPlayers("Players detected in the end! Moving!");
-                //player.sendMessage("We gotta get you out of here!");
+    public void reset() {
+        world = Bukkit.getWorld(config.endWorldName());
+        System.out.println(world.getPlayers().size());
+        for (Player player : world.getPlayers()) {
+            MessageUtil.sendMessage(player, "End is resetting!");
+            //player.sendMessage("We gotta get you out of here!");
 
-                player.teleport(worldManager.getSpawnLocation());
-            }
+            Location spawn = worldManager.getSpawnLocation();
+            Location spawnLocation = new Location(spawn.getWorld(), spawn.getX(), spawn.getY(), spawn.getZ());
+            //System.out.println("Teleporting to " + spawn.getWorld().toString() + " " + spawn.getX() + " " + spawn.getY() + " " + spawn.getZ());
+            player.teleport(spawnLocation);
         }
         try {
             resetWorld();
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public boolean chunkInWorld(Chunk chunk){
+    public boolean chunkInWorld(Chunk chunk) {
         return world.getUID().equals(chunk.getWorld().getUID());
     }
 
-    public void loadChunk(GameChunk chunk){
+    public void loadChunk(GameChunk chunk) {
         if (!beingreset && !this.modifiedchunks.contains(chunk))
             this.modifiedchunks.add(chunk);
     }
@@ -67,12 +73,11 @@ public class GameWorld extends BukkitRunnable {
         runTaskTimer(worldManager.getPlugin(), 0, 1200);
     }
     */
-    public void lock(){
+    public void lock() {
         locked = true;
-        runTaskTimer(worldManager.getPlugin(), 0, 1200);
     }
 
-    public void unlock(){
+    public void unlock() {
         locked = false;
     }
 
@@ -91,8 +96,7 @@ public class GameWorld extends BukkitRunnable {
             //locked = false;
             cancel();
             MessageUtil.sendMessageToAllPlayers("The end is unlocked !!!");
-        }
-        else {
+        } else {
             //MessageUtil.sendMessageToAllPlayers("The end will lockdown in " + minutesleft + " minute(s) !");
             MessageUtil.sendMessageToAllPlayers("The end is in lockdown!");
             //minutesleft--;
@@ -108,7 +112,8 @@ public class GameWorld extends BukkitRunnable {
     }
 
     public void resetWorld() {
-        System.out.println("Deleting world folder...");
+        world = Bukkit.getWorld(config.endWorldName());
+        System.out.println("[APOC-End-Reset] Deleting world folder...");
         Bukkit.unloadWorld(world, true);
         WorldType worldtype = world.getWorldType();
         World.Environment worldenvironment = world.getEnvironment();
@@ -117,7 +122,7 @@ public class GameWorld extends BukkitRunnable {
         File deleteFolder = world.getWorldFolder();
 
         deleteWorld(deleteFolder);
-        System.out.println("World folder deleted//.");
+        System.out.println("[APOC-End-Reset] World folder deleted.");
         /*
         WorldCreator worldcreator = new WorldCreator(worldname);
         worldcreator.type(worldtype);
@@ -130,16 +135,16 @@ public class GameWorld extends BukkitRunnable {
     }
 
     public boolean deleteWorld(File path) {
-        if(path.exists()) {
+        if (path.exists()) {
             File files[] = path.listFiles();
-            for(int i=0; i<files.length; i++) {
-                if(files[i].isDirectory()) {
+            for (int i = 0; i < files.length; i++) {
+                if (files[i].isDirectory()) {
                     deleteWorld(files[i]);
                 } else {
                     files[i].delete();
                 }
             }
         }
-        return(path.delete());
+        return (path.delete());
     }
 }

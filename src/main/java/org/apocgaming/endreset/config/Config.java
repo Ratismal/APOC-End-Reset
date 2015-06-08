@@ -10,6 +10,7 @@ public class Config {
 	private int tpDelay = 10;
 	private int resetDelay = 30;
 	private FileConfiguration config = null;
+	private String worldName;
 	
 	public Config(FileConfiguration config) {
 		this.config = config;
@@ -21,6 +22,7 @@ public class Config {
 		rewardEgg = getConfig().getBoolean("reward-egg");
 		tpDelay = getConfig().getInt("end-tp-out-delay");
 		resetDelay = getConfig().getInt("end-reset-time");
+		worldName = getConfig().getString("world-name");
 	}
 
 	private double[] getDoubleArray(String name) {
@@ -39,6 +41,7 @@ public class Config {
 		return rewardEgg;
 	}
 
+	public String endWorldName() { return worldName; }
 
 	public double[] getEndTPcoords() {
 		return endTPcoords;

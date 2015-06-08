@@ -17,15 +17,18 @@
 total-exp: 22075
 # Do you want the player who killed the dragon to get the dragon egg?
 reward-egg: true
+
+#What the name of the end?
+world-name: DIM1
+
+#DEPRECATED
 # Where should we teleport the players after we close the end?
 # Choose the name of the world and the coordinates X,Y,Z to where they will spawn at. If you set X,Y,Z to all to 0, players will be teleported to their bed location or spawn.
-
-#REMOVED FOR NOW
-
-#end-tp-world: world
+#end-tp-world: World
 #end-tp-X: 0
 #end-tp-Y: 0
 #end-tp-Z: 0
+
 # The time the players have left in the end after killing the dragon before they get teleported to the given coordinates above. (In minutes)
 
 #NOT IMPLEMENTED

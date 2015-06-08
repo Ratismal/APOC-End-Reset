@@ -33,7 +33,7 @@ public class GameListener implements Listener {
         if (event.getTo().getWorld().getEnvironment() == World.Environment.THE_END){
             if (worldManager.getGameWorld().isLocked()) {
                 event.getPlayer().teleport(worldManager.getSpawnLocation());
-                MessageUtil.sendMessage(event.getPlayer(), "The end is on lockdown.");
+                MessageUtil.sendMessage(event.getPlayer(), "The end is in lockdown.");
                 event.setCancelled(true);
                 event.getPlayer().teleport(event.getPlayer().getWorld().getSpawnLocation());
             }
