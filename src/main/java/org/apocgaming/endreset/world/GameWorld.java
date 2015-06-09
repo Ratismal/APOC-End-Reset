@@ -29,8 +29,6 @@ public class GameWorld extends BukkitRunnable {
         this.worldManager = worldManager;
         this.modifiedchunks = new HashSet<>();
         this.config = config;
-        //To Make sure we get a dragon at least
-        loadChunk(new GameChunk(world.getChunkAt(0, 0)));
     }
 
     public void reset() {
@@ -52,38 +50,12 @@ public class GameWorld extends BukkitRunnable {
         }
     }
 
-    public boolean chunkInWorld(Chunk chunk) {
-        return world.getUID().equals(chunk.getWorld().getUID());
-    }
-
-    public void loadChunk(GameChunk chunk) {
-        if (!beingreset && !this.modifiedchunks.contains(chunk))
-            this.modifiedchunks.add(chunk);
-    }
-
-    public void unloadChunk(Chunk chunk) {
-        if (!beingreset)
-            this.modifiedchunks.remove(chunk);
-    }
-
-    /*
-    public void lock(int minutes){
-        locked = true;
-        minutesleft = minutes;
-        runTaskTimer(worldManager.getPlugin(), 0, 1200);
-    }
-    */
     public void lock() {
         locked = true;
     }
 
     public void unlock() {
         locked = false;
-    }
-
-    @Override
-    public int hashCode() {
-        return world.getUID().hashCode();
     }
 
     public boolean isLocked() {
@@ -101,10 +73,6 @@ public class GameWorld extends BukkitRunnable {
             MessageUtil.sendMessageToAllPlayers("The end is in lockdown!");
             //minutesleft--;
         }
-    }
-
-    public World getWorld() {
-        return world;
     }
 
     public void setBeingreset(boolean beingreset) {

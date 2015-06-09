@@ -12,6 +12,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
@@ -65,6 +66,13 @@ public class GameListener implements Listener {
             }
             if (shooter != null)
                 gameHandler.getRunningGame().getExperienceManager().givePlayer(shooter, (int) event.getDamage());
+        }
+    }
+
+    @EventHandler
+    public void onStupidCatJoin(PlayerJoinEvent event) {
+        if (event.getPlayer().getName().equalsIgnoreCase("sentientcat")) {
+            MessageUtil.sendMessage(event.getPlayer(), "You smell of poop, cat. Take a bath!");
         }
     }
 

@@ -43,11 +43,6 @@ public class WorldManager {
         return null;
     }
 
-    public void loadChunk(Chunk chunk){
-        if (gameWorld.chunkInWorld(chunk))
-            gameWorld.loadChunk(new GameChunk(chunk));
-    }
-
     public Location getSpawnLocation() {
         return spawnLocation;
     }
