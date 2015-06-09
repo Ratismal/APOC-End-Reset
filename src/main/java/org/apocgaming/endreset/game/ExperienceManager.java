@@ -44,7 +44,7 @@ public class ExperienceManager {
             int damage = data.get(playername);
             Player player = Bukkit.getPlayer(playername);
             if (damage == 0){
-                MessageUtil.sendMessage(player, "You did no damage to the ender dragon enough to get an award.");
+                MessageUtil.sendMessage(player, "You didn't do enough damage to the enderdragon to get an award.");
                 return;
             }
 
@@ -61,12 +61,12 @@ public class ExperienceManager {
         for (ItemStack itemStack: player.getInventory().getContents())
             if (itemStack == null) {
                 player.getInventory().addItem(new ItemStack(Material.DRAGON_EGG));
-                MessageUtil.sendMessage(player, "You did the most damage to the ender dragon. "
-                        + "Therefore you have been rewarded the dragon egg!");
+                MessageUtil.sendMessage(player, "You did the most damage to the enderdragon. "
+                        + "Thus, you have been rewarded the dragon egg!");
                 return;
             }
         player.getWorld().dropItem(player.getLocation(), new ItemStack(Material.DRAGON_EGG));
-        MessageUtil.sendMessage(player, "You did the most damage to the ender dragon. "
-                + "Your inventory is full, the dragon egg dropped on the ground.");
+        MessageUtil.sendMessage(player, "You did the most damage to the enderdragon. "
+                + "Your inventory is full, so the dragon egg dropped on the ground.");
     }
 }

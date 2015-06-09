@@ -12,6 +12,8 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.List;
+
 /**
  * Created by thomas15v on 11/03/15.
  */
@@ -61,6 +63,12 @@ public class EndResetPlugin extends JavaPlugin
                     }
                     catch(NullPointerException e){
                         MessageUtil.sendMessage(sender, "World not loaded!");
+                    }
+                }
+                else if (args[0].equalsIgnoreCase("list")) {
+                    List<World> worldlist = Bukkit.getWorlds();
+                    for (World world : worldlist) {
+                        System.out.println(world.getName());
                     }
                 }
                 else {

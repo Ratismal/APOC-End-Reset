@@ -22,6 +22,6 @@ public class MessageUtil {
     }
 
     public static String getMessage(String message){
-        return new StringBuilder().append("\247c[\247bEndReset\247c]\247r ").append(message).toString();
+        return new StringBuilder().append("\247c[\247bAPOCEndReset\247c]\247r ").append(message).toString();
     }
 }

@@ -4,6 +4,8 @@ import org.apocgaming.endreset.config.Config;
 import org.apocgaming.endreset.util.MessageUtil;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
+import org.bukkit.event.world.WorldInitEvent;
+import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
@@ -33,7 +35,7 @@ public class GameWorld extends BukkitRunnable {
 
     public void reset() {
         world = Bukkit.getWorld(config.endWorldName());
-        System.out.println(world.getPlayers().size());
+        //System.out.println(world.getPlayers().size());
         for (Player player : world.getPlayers()) {
             MessageUtil.sendMessage(player, "End is resetting!");
             //player.sendMessage("We gotta get you out of here!");
@@ -80,7 +82,10 @@ public class GameWorld extends BukkitRunnable {
     }
 
     public void resetWorld() {
+
         world = Bukkit.getWorld(config.endWorldName());
+        WorldCreator wc = new WorldCreator(config.endWorldName());
+        wc.copy(world);
         System.out.println("[APOC-End-Reset] Deleting world folder...");
         Bukkit.unloadWorld(world, true);
         WorldType worldtype = world.getWorldType();
@@ -98,11 +103,33 @@ public class GameWorld extends BukkitRunnable {
         worldcreator.generateStructures(true);
         Bukkit.createWorld(worldcreator);
         */
-        //System.out.println("World created. Done!");
+
+        //wc.createWorld();
+        //Bukkit.getServer().getPluginManager().callEvent(new WorldLoadEvent(world));
+        //World eworld = Buk
+        Bukkit.getServer().getPluginManager().callEvent(new WorldLoadEvent(Bukkit.getWorld("DIM1")));
+
+        System.out.println("World created. Done!");
         unlock();
+        MessageUtil.sendMessageToAllPlayers("End has been reset!");
     }
 
     public boolean deleteWorld(File path) {
+        if (path.exists()) {
+            File files[] = path.listFiles();
+            for (int i = 0; i < files.length; i++) {
+                if (files[i].isDirectory()) {
+                    deleteFiles(files[i]);
+                }
+                else if (files[i].getName().equals("uid.dat")){
+                    files[i].delete();
+                }
+            }
+        }
+        return (path.delete());
+    }
+
+    public void deleteFiles(File path) {
         if (path.exists()) {
             File files[] = path.listFiles();
             for (int i = 0; i < files.length; i++) {
@@ -113,6 +140,5 @@ public class GameWorld extends BukkitRunnable {
                 }
             }
         }
-        return (path.delete());
     }
 }

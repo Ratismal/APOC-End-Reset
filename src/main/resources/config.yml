@@ -30,9 +30,9 @@ world-name: DIM1
 #end-tp-Z: 0
 
 # The time the players have left in the end after killing the dragon before they get teleported to the given coordinates above. (In minutes)
-
 #NOT IMPLEMENTED
 end-tp-out-delay: 2
 # The end is in lockdown (nobody can enter) between these 2 times.
 # How long until the world is reset in minutes? (After the dragon is killed)
 end-reset-time: 3
+

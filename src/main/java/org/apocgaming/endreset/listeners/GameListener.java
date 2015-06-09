@@ -1,8 +1,10 @@
 package org.apocgaming.endreset.listeners;
 
+import org.apocgaming.endreset.EndResetPlugin;
 import org.apocgaming.endreset.game.GameHandler;
 import org.apocgaming.endreset.util.MessageUtil;
 import org.apocgaming.endreset.world.WorldManager;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Arrow;
@@ -15,6 +17,7 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.scheduler.BukkitScheduler;
 
 /**
  * Created by thomas15v on 11/03/15.
@@ -23,9 +26,11 @@ public class GameListener implements Listener {
 
     private GameHandler gameHandler;
     private WorldManager worldManager;
+    //private EndResetPlugin endResetPlugin;
 
     public GameListener(GameHandler gameHandler, WorldManager worldManager) {
         this.gameHandler = gameHandler;
+        //this.endResetPlugin = endResetPlugin;
         this.worldManager = worldManager;
     }
 
