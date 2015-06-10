@@ -73,14 +73,20 @@ public class EndResetPlugin extends JavaPlugin
                     for (World world : worldlist) {
                         System.out.println(world.getName());
                     }
+
+                }
+                else if (args[0].equalsIgnoreCase("reload")) {
+                    pluginconfig.reload();
+                    sender.sendMessage(ChatColor.BLUE + "Configs reloaded!");
                 }
                 else {
                     MessageUtil.sendMessage(sender, "Invalid command!");
                 }
             }
                 else {
-                sender.sendMessage(ChatColor.BLUE + "/endreset reset   reloads config");
+                sender.sendMessage(ChatColor.BLUE + "/endreset reset   reset end");
                 sender.sendMessage(ChatColor.BLUE + "/endreset size    shows how many people are in the end");
+                sender.sendMessage(ChatColor.BLUE + "/endreset reload  reload config");
             }
 
             return true;
