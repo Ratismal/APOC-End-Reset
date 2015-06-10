@@ -21,7 +21,7 @@ reward-egg: true
 #What is the name of the end?
 end-name: DIM1
 #What is the name of the world you want players to spawn in?
-spawn-name:
+spawn-name: world
 
 #DEPRECATED
 # Where should we teleport the players after we close the end?
