@@ -11,6 +11,7 @@ public class Config {
 	private int resetDelay = 30;
 	private FileConfiguration config = null;
 	private String worldName;
+	private String spawnName;
 	
 	public Config(FileConfiguration config) {
 		this.config = config;
@@ -22,7 +23,8 @@ public class Config {
 		rewardEgg = getConfig().getBoolean("reward-egg");
 		tpDelay = getConfig().getInt("end-tp-out-delay");
 		resetDelay = getConfig().getInt("end-reset-time");
-		worldName = getConfig().getString("world-name");
+		worldName = getConfig().getString("end-name");
+		spawnName = getConfig().getString("spawn-name");
 	}
 
 	private double[] getDoubleArray(String name) {
@@ -42,6 +44,8 @@ public class Config {
 	}
 
 	public String endWorldName() { return worldName; }
+
+	public String spawnWorldName() { return spawnName; }
 
 	public double[] getEndTPcoords() {
 		return endTPcoords;

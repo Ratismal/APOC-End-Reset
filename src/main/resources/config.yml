@@ -18,8 +18,10 @@ total-exp: 22075
 # Do you want the player who killed the dragon to get the dragon egg?
 reward-egg: true
 
-#What the name of the end?
-world-name: DIM1
+#What is the name of the end?
+end-name: DIM1
+#What is the name of the world you want players to spawn in?
+spawn-name:
 
 #DEPRECATED
 # Where should we teleport the players after we close the end?

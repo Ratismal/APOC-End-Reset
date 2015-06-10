@@ -25,11 +25,11 @@ public class WorldManager {
     }
 
     public World getOverWorld(){
-        return getWorld(World.Environment.NORMAL);
+        return Bukkit.getWorld(config.spawnWorldName());
     }
 
     public World getEndWorld(){
-        return getWorld(World.Environment.THE_END);
+        return Bukkit.getWorld(config.endWorldName());
     }
 
     public GameWorld getGameWorld(){

@@ -23,6 +23,9 @@ public class EndResetPlugin extends JavaPlugin
     private GameHandler gameHandler;
     private Config pluginconfig;
     private WorldManager worldManager;
+    //private
+
+
 
     @Override
     public void onEnable() {

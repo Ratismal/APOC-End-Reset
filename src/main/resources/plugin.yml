@@ -1,7 +1,8 @@
 name: APOC-End-Reset
 main: org.apocgaming.endreset.EndResetPlugin
-version: 1.3
+version: 1.4
 authors: [Zilacon, Capsar, FreakyFalse, Ratismal]
+depend: [MultiWorld]
 description: A bukkit minecraft plugin that automatically resets the end when the dragon is killed and distributes the rewards.
 
 commands:
